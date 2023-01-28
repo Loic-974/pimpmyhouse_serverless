@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PageWrapper from "./lib/PageWrapper";
 import styled from "styled-components";
 import { IUtilisateur } from "../types/utilisateur";
-import httpCommon, { expressAxios } from "../http.common";
+import httpCommon from "../http.common";
 
 export default function Login() {
   const navigate = useNavigate();

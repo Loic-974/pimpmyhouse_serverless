@@ -14,12 +14,11 @@ import KeyIcon from "@mui/icons-material/Key";
 import StoreIcon from "@mui/icons-material/Store";
 import BalanceIcon from "@mui/icons-material/Balance";
 import CallIcon from "@mui/icons-material/Call";
-import httpCommon, { expressAxios } from "../../http.common";
+import httpCommon from "../../http.common";
 
 export interface IFormData {
   email: string;
   password: string;
-  confirmPassword: string;
   nom: string;
   prenom: string;
   tel: string;
@@ -55,7 +54,6 @@ export function SignUpTabForm(props: {
     const userBasic = {
       email,
       password,
-      confirmPassword,
       nom,
       prenom,
       tel,
@@ -69,7 +67,6 @@ export function SignUpTabForm(props: {
   }, [
     email,
     password,
-    confirmPassword,
     nom,
     prenom,
     tel,
@@ -82,21 +79,23 @@ export function SignUpTabForm(props: {
   async function handleSignUp() {
     setErrorMessage("");
     try {
-      await httpCommon.post("/signUp", formData).then(async (response) => {
-        console.log(response?.data);
-        const data = response?.data;
+      const attempt = await httpCommon.post("/signUp", formData);
+
+      if (attempt?.data) {
+        const data = attempt?.data;
+
         window.localStorage.setItem("email", data?.email);
         window.localStorage.setItem("token", data?.token);
 
         navigate("/", {
-          state: response.data,
+          state: data,
           replace: true,
           preventScrollReset: true,
         });
-      });
+      }
     } catch (error: any) {
       console.log(error);
-      setErrorMessage(error?.response?.data);
+      setErrorMessage(error?.response?.data.error);
     }
   }
 
@@ -144,11 +143,11 @@ export function SignUpTabForm(props: {
             }}
             error={
               !!password.length &&
-              !_checkPassword(formData.password, formData.confirmPassword)
+              !_checkPassword(formData.password, confirmPassword)
             }
             helperText={
               !!password.length &&
-              !_checkPassword(formData.password, formData.confirmPassword)
+              !_checkPassword(formData.password, confirmPassword)
                 ? "Mot de passe différent"
                 : ""
             }
@@ -170,11 +169,11 @@ export function SignUpTabForm(props: {
             }}
             error={
               !!confirmPassword.length &&
-              !_checkPassword(formData.password, formData.confirmPassword)
+              !_checkPassword(formData.password, confirmPassword)
             }
             helperText={
               !!confirmPassword.length &&
-              !_checkPassword(formData.password, formData.confirmPassword)
+              !_checkPassword(formData.password, confirmPassword)
                 ? "Mot de passe différent"
                 : ""
             }
@@ -284,7 +283,7 @@ export function SignUpTabForm(props: {
           )}
           <Button
             variant="contained"
-            disabled={!_checkFormData(formData)}
+            disabled={!_checkFormData(formData, confirmPassword)}
             onClick={handleSignUp}
           >
             S'inscrire
@@ -311,9 +310,9 @@ function _checkPassword(password: string, confirmPassword: string) {
   }
 }
 
-function _checkFormData(formData: IFormData) {
+function _checkFormData(formData: IFormData, confirmPassword: string) {
   const isEmailCheck = _checkEmail(formData.email);
-  const isPasswordSame = formData.password === formData.confirmPassword;
+  const isPasswordSame = formData.password === confirmPassword;
   let isSirenCheck = formData?.siren ? formData?.siren?.length >= 9 : true;
   const isTelCheck = formData.tel.length === 10;
 

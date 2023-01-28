@@ -7,8 +7,23 @@ import PageWrapper from "./Components/lib/PageWrapper";
 import { useAuth } from "./Components/lib/AuthProvider";
 import { CircularProgress } from "@mui/material";
 import styled from "styled-components";
+import { useAsyncFn } from "react-use";
+import { REALM_APP_DEV_CREDENTIAL } from "./http.common";
+import * as Realm from "realm-web";
+import { useEffect } from "react";
+
+const APP_ID = "application-0-wgnei";
+export const APP = new Realm.App({ id: APP_ID });
 
 function App() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [apiConnection, setApiConnection] = useAsyncFn(apiConnectionFn);
+
+  useEffect(() => {
+    setApiConnection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { state } = useLocation();
@@ -41,6 +56,21 @@ function App() {
       )}
     </>
   );
+}
+
+async function apiConnectionFn() {
+  try {
+    // anonymous
+    const credential = Realm.Credentials.emailPassword(
+      REALM_APP_DEV_CREDENTIAL.email,
+      REALM_APP_DEV_CREDENTIAL.password
+    );
+    // Realm.Credentials.anonymous())
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const user: Realm.User = await APP.logIn(credential);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export default App;
