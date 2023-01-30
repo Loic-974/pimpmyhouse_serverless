@@ -14,17 +14,20 @@ import PageWrapper from "./lib/PageWrapper";
 import styled from "styled-components";
 import { IUtilisateur } from "../types/utilisateur";
 import httpCommon from "../http.common";
+import { AsyncLoader } from "./lib/AsyncLoader";
+import { apiErrorConvertor } from "../Lib/apiErrorConvertor";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
   async function signInCredential(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     event.preventDefault();
+    setIsLoading(true);
     setErrorMessage("");
     try {
       const attempt = await httpCommon.post<IUtilisateur>("/signIn", {
@@ -36,6 +39,7 @@ export default function Login() {
         const data = attempt.data;
         window.localStorage.setItem("email", data.email);
         window.localStorage.setItem("token", data.token || "");
+        setIsLoading(false);
         navigate("/", {
           state: data,
           replace: true,
@@ -45,25 +49,32 @@ export default function Login() {
         setErrorMessage("");
       }
     } catch (error: any) {
-      setErrorMessage(error?.response?.data);
+      console.log(error);
+      setErrorMessage(apiErrorConvertor(error));
+      setIsLoading(false);
     }
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper isUserConnected={false}>
+      <AsyncLoader isLoading={isLoading} label="Connexion en cours" />
       <StyledLoginContainer>
         <h1>Pimp My House</h1>
-        {errorMessage && <Alert severity="error">{errorMessage || ""}</Alert>}
+        {errorMessage && (
+          <StyledAlert severity="error">{errorMessage || ""}</StyledAlert>
+        )}
         <StyledForm method="post" action="/api/auth/signin/email">
           <StyledFormControl variant="standard">
             <StyledLabel htmlFor="email">Identifiant</StyledLabel>
             <StyledInput
               id="email"
+              type="email"
               startAdornment={
                 <InputAdornment position="start">
                   <AccountCircle />
                 </InputAdornment>
               }
+              placeholder="Votre Identifiant"
               onChange={(e) => setEmail(e.currentTarget.value)}
             />
           </StyledFormControl>
@@ -72,6 +83,7 @@ export default function Login() {
             <StyledInput
               id="password"
               type="password"
+              placeholder="Votre mot de passe"
               startAdornment={
                 <InputAdornment position="start">
                   <Visibility />
@@ -81,14 +93,13 @@ export default function Login() {
             />
           </StyledFormControl>
 
-          <Link to={"/signUp"}>Cliquez ici pour vous inscrire</Link>
-
           <StyledButton
             variant="contained"
             onClick={(e) => signInCredential(e)}
           >
             Connexion
           </StyledButton>
+          <StyledLink to={"/signUp"}>inscription</StyledLink>
         </StyledForm>
       </StyledLoginContainer>
     </PageWrapper>
@@ -105,13 +116,18 @@ const StyledLoginContainer = styled.div`
   }
 `;
 
+const StyledAlert = styled(Alert)`
+  width: 40%;
+  margin-bottom: 8px;
+`;
+
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify: space-around;
   padding: 16px;
-  background-color: #9ba0a5;
+  background-color: #1f1f20e8;
   border-radius: 8px;
   width: 40%;
 `;
@@ -132,20 +148,45 @@ const StyledLabel = styled(InputLabel)`
     top: unset;
     font-size: 1.3rem;
     font-weight: 500;
+    color: white;
   }
 `;
 
 const StyledInput = styled(Input)`
   &.MuiInputBase-root {
-    color: #424242;
+    color: white;
   }
   &.MuiInputBase-root:before {
     border-bottom: 2px solid #5e5e5e;
+  }
+  svg {
+    color: white;
+  }
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #1f1f20f8 inset;
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: white;
   }
 `;
 
 const StyledButton = styled(Button)`
   &.MuiButton-root {
-    margin-top: 8px;
+    background-color: #ca6f06;
+    width: 60%;
+  }
+`;
+
+const StyledLink = styled(Link)`
+  margin-top: 12px;
+  width: 60%;
+  text-decoration: none;
+  padding: 8px 0;
+  background-color: #257a94;
+  border-radius: 4px;
+  text-align: center;
+  text-transform: uppercase;
+  color: white;
+  :hover {
+    background-color: #4a9eb8;
   }
 `;

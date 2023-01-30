@@ -1,6 +1,8 @@
 import {
+  Alert,
   Button,
   FormControl,
+  Grid,
   Input,
   InputAdornment,
   InputLabel,
@@ -15,6 +17,8 @@ import StoreIcon from "@mui/icons-material/Store";
 import BalanceIcon from "@mui/icons-material/Balance";
 import CallIcon from "@mui/icons-material/Call";
 import httpCommon from "../../http.common";
+import styled from "styled-components";
+import { AsyncLoader } from "./AsyncLoader";
 
 export interface IFormData {
   email: string;
@@ -50,6 +54,8 @@ export function SignUpTabForm(props: {
 
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const formData = useMemo(() => {
     const userBasic = {
       email,
@@ -77,6 +83,7 @@ export function SignUpTabForm(props: {
   ]);
 
   async function handleSignUp() {
+    setIsLoading(true);
     setErrorMessage("");
     try {
       const attempt = await httpCommon.post("/signUp", formData);
@@ -86,7 +93,7 @@ export function SignUpTabForm(props: {
 
         window.localStorage.setItem("email", data?.email);
         window.localStorage.setItem("token", data?.token);
-
+        setIsLoading(false);
         navigate("/", {
           state: data,
           replace: true,
@@ -94,8 +101,9 @@ export function SignUpTabForm(props: {
         });
       }
     } catch (error: any) {
+      setIsLoading(false);
       console.log(error);
-      setErrorMessage(error?.response?.data.error);
+      setErrorMessage(error?.response?.data);
     }
   }
 
@@ -108,191 +116,226 @@ export function SignUpTabForm(props: {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {errorMessage && <p>{errorMessage}</p>}
+      {errorMessage && (
+        <StyledAlert severity="error">{errorMessage}</StyledAlert>
+      )}
+      <AsyncLoader isLoading={isLoading} label="Inscription en cours" />
       {value === index && (
-        <>
-          <TextField
-            id="email"
-            variant="standard"
-            label="Adresse Email"
-            placeholder="Saisir votre Email"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <EmailIcon />
-                </InputAdornment>
-              ),
-            }}
-            error={email ? !_checkEmail(email) : false}
-            helperText={!_checkEmail(email) ? "Email invalide" : ""}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-          />
-
-          <TextField
-            id="password"
-            type="password"
-            label="Mot de passe"
-            variant="standard"
-            placeholder="Saisir votre mot de passe"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <KeyIcon />
-                </InputAdornment>
-              ),
-            }}
-            error={
-              !!password.length &&
-              !_checkPassword(formData.password, confirmPassword)
-            }
-            helperText={
-              !!password.length &&
-              !_checkPassword(formData.password, confirmPassword)
-                ? "Mot de passe différent"
-                : ""
-            }
-            onChange={(e) => setPassword(e.currentTarget.value)}
-          />
-
-          <TextField
-            id="confirPassword"
-            type="password"
-            variant="standard"
-            label="Confirmation Mot de passe"
-            placeholder="Confirmer votre mot de passe"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <KeyIcon />
-                </InputAdornment>
-              ),
-            }}
-            error={
-              !!confirmPassword.length &&
-              !_checkPassword(formData.password, confirmPassword)
-            }
-            helperText={
-              !!confirmPassword.length &&
-              !_checkPassword(formData.password, confirmPassword)
-                ? "Mot de passe différent"
-                : ""
-            }
-            onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-          />
-
-          <p>Parlez-nous de vous</p>
-          <FormControl variant="standard">
-            <InputLabel htmlFor="name">Nom</InputLabel>
-            <Input
-              id="name"
-              placeholder="Saisir votre nom"
-              startAdornment={
-                <InputAdornment position="start">
-                  <AccountCircle />
-                </InputAdornment>
-              }
-              onChange={(e) => setNom(e.currentTarget.value)}
-            />
-          </FormControl>
-          <FormControl variant="standard">
-            <InputLabel htmlFor="firstName">Prenom</InputLabel>
-            <Input
-              id="firstName"
-              placeholder="Saisir votre prenom"
-              startAdornment={
-                <InputAdornment position="start">
-                  <AccountCircle />
-                </InputAdornment>
-              }
-              onChange={(e) => setPrenom(e.currentTarget.value)}
-            />
-          </FormControl>
-
-          <TextField
-            id="tel"
-            variant="standard"
-            label="Numéro Téléphone"
-            placeholder="Saisir votre numéro de téléphone"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <CallIcon />
-                </InputAdornment>
-              ),
-            }}
-            error={tel.length && tel.length !== 10 ? true : false}
-            helperText={
-              tel.length && tel.length !== 10
-                ? "Numéro incorrect (10 Chiffres nécessaire)"
-                : ""
-            }
-            onChange={(e) => setTel(e.currentTarget.value)}
-          />
-
-          {ispresta && (
-            <>
-              <p>Parlez-nous de votre société</p>
-              <TextField
-                id="siren"
-                placeholder="Saisir votre numero siren"
-                label="Siren"
+        <Grid container justifyContent={"space-around"}>
+          <Grid
+            container
+            item
+            xs={12}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
+            <StyledGrid item md={4} xs={6}>
+              <StyledTextField
+                id="email"
                 variant="standard"
-                error={siren.length < 9 && siren.length ? true : false}
-                helperText={
-                  siren.length && siren.length < 9
-                    ? "Siren incorrect (9 Chiffres nécessaire)"
-                    : ""
-                }
+                label="Adresse Email"
+                placeholder="Saisir votre Email"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <StoreIcon />
+                      <EmailIcon />
                     </InputAdornment>
                   ),
                 }}
-                onChange={(e) => setSiren(e.currentTarget.value)}
+                error={email ? !_checkEmail(email) : false}
+                helperText={!_checkEmail(email) ? "Email invalide" : ""}
+                onChange={(e) => setEmail(e.currentTarget.value)}
               />
-
+            </StyledGrid>
+            <StyledGrid item md={4} xs={6}>
+              <StyledTextField
+                id="password"
+                type="password"
+                label="Mot de passe"
+                variant="standard"
+                placeholder="Saisir votre mot de passe"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <KeyIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                error={
+                  !!password.length &&
+                  !_checkPassword(formData.password, confirmPassword)
+                }
+                helperText={
+                  !!password.length &&
+                  !_checkPassword(formData.password, confirmPassword)
+                    ? "Mot de passe différent"
+                    : ""
+                }
+                onChange={(e) => setPassword(e.currentTarget.value)}
+              />
+            </StyledGrid>
+            <StyledGrid item md={4} xs={6}>
+              <StyledTextField
+                id="confirPassword"
+                type="password"
+                variant="standard"
+                label="Confirmation Mot de passe"
+                placeholder="Confirmer votre mot de passe"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <KeyIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                error={
+                  !!confirmPassword.length &&
+                  !_checkPassword(formData.password, confirmPassword)
+                }
+                helperText={
+                  !!confirmPassword.length &&
+                  !_checkPassword(formData.password, confirmPassword)
+                    ? "Mot de passe différent"
+                    : ""
+                }
+                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
+              />
+            </StyledGrid>
+          </Grid>
+          <StyledPart>Qui êtes-vous?</StyledPart>
+          <Grid container item xs={12}>
+            <StyledGrid item md={4} xs={6}>
               <FormControl variant="standard">
-                <InputLabel htmlFor="adress">Adresse Sociale</InputLabel>
-                <Input
-                  id="adress"
-                  placeholder="Saisir votre adresse sociale"
+                <StyledLabel htmlFor="name">Nom</StyledLabel>
+                <StyledInput
+                  id="name"
+                  placeholder="Saisir votre nom"
                   startAdornment={
                     <InputAdornment position="start">
-                      <StoreIcon />
+                      <AccountCircle />
                     </InputAdornment>
                   }
-                  onChange={(e) => setAdresseSociale(e.currentTarget.value)}
+                  onChange={(e) => setNom(e.currentTarget.value)}
                 />
               </FormControl>
+            </StyledGrid>
+            <StyledGrid item md={4} xs={6}>
               <FormControl variant="standard">
-                <InputLabel htmlFor="statut">Statut juridique</InputLabel>
-                <Input
-                  id="statut"
-                  placeholder="Saisir votre statut juridique"
+                <StyledLabel htmlFor="firstName">Prenom</StyledLabel>
+                <StyledInput
+                  id="firstName"
+                  placeholder="Saisir votre prenom"
                   startAdornment={
                     <InputAdornment position="start">
-                      <BalanceIcon />
+                      <AccountCircle />
                     </InputAdornment>
                   }
-                  onChange={(e) => setStatutJuridique(e.currentTarget.value)}
+                  onChange={(e) => setPrenom(e.currentTarget.value)}
                 />
               </FormControl>
+            </StyledGrid>
+            <StyledGrid item md={4} xs={6}>
+              <StyledTextField
+                id="tel"
+                variant="standard"
+                label="Numéro Téléphone"
+                placeholder="Saisir votre numéro de téléphone"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CallIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                error={tel.length && tel.length !== 10 ? true : false}
+                helperText={
+                  tel.length && tel.length !== 10
+                    ? "Numéro incorrect (10 Chiffres nécessaire)"
+                    : ""
+                }
+                onChange={(e) => setTel(e.currentTarget.value)}
+              />
+            </StyledGrid>
+          </Grid>
+          {ispresta && (
+            <>
+              <StyledPart>Votre Société</StyledPart>
+              <Grid container item xs={12}>
+                <StyledGrid item md={4} xs={6}>
+                  <StyledTextField
+                    id="siren"
+                    placeholder="Saisir votre numero siren"
+                    label="Siren"
+                    variant="standard"
+                    error={siren.length < 9 && siren.length ? true : false}
+                    helperText={
+                      siren.length && siren.length < 9
+                        ? "Siren incorrect (9 Chiffres nécessaire)"
+                        : ""
+                    }
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <StoreIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                    onChange={(e) => setSiren(e.currentTarget.value)}
+                  />
+                </StyledGrid>
+                <StyledGrid item md={4} xs={6}>
+                  <FormControl variant="standard">
+                    <StyledLabel htmlFor="adress">Adresse Sociale</StyledLabel>
+                    <StyledInput
+                      id="adress"
+                      placeholder="Saisir votre adresse sociale"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <StoreIcon />
+                        </InputAdornment>
+                      }
+                      onChange={(e) => setAdresseSociale(e.currentTarget.value)}
+                    />
+                  </FormControl>
+                </StyledGrid>
+                <StyledGrid item md={4} xs={6}>
+                  <FormControl variant="standard">
+                    <StyledLabel htmlFor="statut">Statut juridique</StyledLabel>
+                    <StyledInput
+                      id="statut"
+                      placeholder="Saisir votre statut juridique"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <BalanceIcon />
+                        </InputAdornment>
+                      }
+                      onChange={(e) =>
+                        setStatutJuridique(e.currentTarget.value)
+                      }
+                    />
+                  </FormControl>
+                </StyledGrid>
+              </Grid>
             </>
           )}
-          <Button
-            variant="contained"
-            disabled={!_checkFormData(formData, confirmPassword)}
-            onClick={handleSignUp}
-          >
-            S'inscrire
-          </Button>
-        </>
+          <StyledBtnGrid item xs={12}>
+            <StyledButton
+              variant="contained"
+              disabled={!_checkFormData(formData, confirmPassword)}
+              onClick={handleSignUp}
+            >
+              S'inscrire
+            </StyledButton>
+          </StyledBtnGrid>
+        </Grid>
       )}
     </div>
   );
 }
+
+// ----------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- HELPER ---------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
 
 function _checkEmail(email: string) {
   const regex = new RegExp(
@@ -324,3 +367,100 @@ function _checkFormData(formData: IFormData, confirmPassword: string) {
     Object.values(formData).every((item) => item)
   );
 }
+
+// ----------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- Style ---------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
+
+const StyledGrid = styled(Grid)`
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledBtnGrid = styled(Grid)`
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+`;
+
+const StyledLabel = styled(InputLabel)`
+  &.MuiInputLabel-root {
+    top: unset;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: white;
+  }
+  svg {
+    color: white;
+  }
+`;
+
+const StyledInput = styled(Input)`
+  &.MuiInputBase-root {
+    color: white;
+  }
+  &.MuiInputBase-root:before {
+    border-bottom: 1px solid #444444;
+  }
+  svg {
+    color: white;
+  }
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #1f1f20 inset;
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: white;
+  }
+  .MuiInput-input {
+    color: white;
+  }
+`;
+
+const StyledTextField = styled(TextField)`
+  .MuiInputLabel-root {
+    color: white;
+    font-size: 1.1rem;
+  }
+  .MuiInput-root {
+    color: white;
+  }
+
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #1f1f20 inset;
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: white;
+  }
+  svg {
+    color: white;
+  }
+  input {
+    &::placeholder {
+      color: white;
+    }
+  }
+`;
+
+const StyledButton = styled(Button)`
+  &.MuiButton-root {
+    background-color: #ca6f06;
+    width: 40%;
+    :disabled {
+      background-color: grey;
+    }
+  }
+`;
+
+const StyledPart = styled.div`
+  text-align: center;
+  width: 100%;
+  color: white;
+  margin: 24px 0px;
+  padding: 3px 0;
+  border-radius: 6px;
+  background-color: grey;
+`;
+
+const StyledAlert = styled(Alert)`
+  align-self: center;
+  width: 95%;
+  margin-bottom: 24px;
+`;

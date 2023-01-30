@@ -11,6 +11,7 @@ import { useAsyncFn } from "react-use";
 import { REALM_APP_DEV_CREDENTIAL } from "./http.common";
 import * as Realm from "realm-web";
 import { useEffect } from "react";
+import { Home } from "./Components/Home";
 
 const APP_ID = "application-0-wgnei";
 export const APP = new Realm.App({ id: APP_ID });
@@ -33,7 +34,7 @@ function App() {
   return (
     <>
       {isLoading && !user && !state && (
-        <PageWrapper>
+        <PageWrapper isUserConnected={false}>
           <StyledLoader>
             <CircularProgress size={100} />
             <p>Chargement.....</p>
@@ -50,8 +51,7 @@ function App() {
 
       {((!isLoading && user) || state) && (
         <Routes>
-          <Route path="/" index element={<PageWrapper>toto</PageWrapper>} />
-          <Route path="/home" element={<PageWrapper>toto</PageWrapper>} />
+          <Route path="/" index element={<Home />} />
         </Routes>
       )}
     </>
