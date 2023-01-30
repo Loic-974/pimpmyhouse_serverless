@@ -1,8 +1,11 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import httpCommon from "../../http.common";
 import { useAsync } from "react-use";
+import { IUtilisateur } from "../../types/utilisateur";
 
-export const authContext = createContext({ user: null });
+export const authContext = createContext<{ user: IUtilisateur | null }>({
+  user: null,
+});
 /**
  * Check if user is already connected
  * Check email and token before fetch data emial and token

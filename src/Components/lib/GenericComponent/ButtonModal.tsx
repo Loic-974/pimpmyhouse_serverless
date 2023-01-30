@@ -1,5 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
 import React, { ReactNode, useState } from "react";
+import styled from "styled-components";
 
 export const ButtonModal = ({
   children,
@@ -13,7 +14,7 @@ export const ButtonModal = ({
   return (
     <>
       <Button onClick={() => setIsDisplay(true)}>{btnLabel}</Button>
-      <Dialog
+      <StyledDialog
         open={isDisplay}
         onClose={() => setIsDisplay(false)}
         aria-labelledby="alert-dialog-title"
@@ -21,7 +22,22 @@ export const ButtonModal = ({
       >
         <DialogTitle id="alert-dialog-title">{btnLabel}</DialogTitle>
         <DialogContent>{children}</DialogContent>
-      </Dialog>
+      </StyledDialog>
     </>
   );
 };
+
+const StyledDialog = styled(Dialog)`
+  .MuiDialog-paper {
+    max-width: 60%;
+    width: fit-content;
+  }
+  .MuiDialogContent-root {
+    display: flex;
+    box-sizing: border-box;
+  }
+  .MuiDialogTitle-root {
+    background-color: #121213;
+    color: white;
+  }
+`;

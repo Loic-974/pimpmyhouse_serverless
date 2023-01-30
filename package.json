@@ -18,11 +18,13 @@
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "expresss": "^0.0.0",
+    "lodash": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.7.0",
     "react-scripts": "5.0.1",
+    "react-select": "^5.7.0",
     "react-use": "^17.4.0",
     "realm-web": "^2.0.0",
     "styled-components": "^5.3.6",
@@ -59,6 +61,7 @@
     "styled-components": "^5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
     "@types/styled-components": "^5.1.26"
   }
 }

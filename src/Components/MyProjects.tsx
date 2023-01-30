@@ -12,6 +12,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ButtonModal } from "./lib/GenericComponent/ButtonModal";
 import { expressAxios } from "../http.common";
+import { NewProjectForm } from "./lib/NewProjectForm";
 
 export const MyProjects = () => {
   const { user } = useContext(authContext);
@@ -40,7 +41,9 @@ export const MyProjects = () => {
                 Filtre 3
               </Grid>
               <Grid item md={3} xs={6}>
-                <ButtonModal btnLabel="Créer un projet">toto</ButtonModal>
+                <ButtonModal btnLabel="Créer un projet">
+                  <NewProjectForm user={user} />
+                </ButtonModal>
               </Grid>
             </Grid>
           </AccordionDetails>
