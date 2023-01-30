@@ -15,6 +15,10 @@
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "axios": "^1.2.4",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "expresss": "^0.0.0",
+    "multer": "^1.4.5-lts.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.7.0",
@@ -31,8 +35,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
-    "startBack": " cd .. && node server.ts ",
-    "startFront": "cd client && react-scripts start "
+    "startBack": "cd api && node server.ts "
   },
   "eslintConfig": {
     "extends": [

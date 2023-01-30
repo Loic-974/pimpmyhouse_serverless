@@ -11,9 +11,14 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ButtonModal } from "./lib/GenericComponent/ButtonModal";
+import { expressAxios } from "../http.common";
 
 export const MyProjects = () => {
   const { user } = useContext(authContext);
+
+  //   expressAxios
+  //     .post("/sendImage", { text: "toto" })
+  //     .then((response) => console.log(response.data));
 
   return (
     <PageWrapper>

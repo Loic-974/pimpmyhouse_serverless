@@ -9,12 +9,12 @@ export default axios.create({
   },
 });
 
-// export const expressAxios = axios.create({
-//   baseURL: "http://localhost:8080",
-//   headers: {
-//     "Content-type": "application/json",
-//   },
-// });
+export const expressAxios = axios.create({
+  baseURL: "http://localhost:8080",
+  headers: {
+    "Content-type": "application/json",
+  },
+});
 
 export const REALM_APP_DEV_CREDENTIAL = {
   email: "loic.rabat@live.fr",
