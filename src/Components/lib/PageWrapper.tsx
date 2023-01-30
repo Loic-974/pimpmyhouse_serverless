@@ -32,9 +32,7 @@ export default function PageWrapper({
           <StyledDrawPart to="/" state={true}>
             Accueil
           </StyledDrawPart>
-          <StyledDrawPart to="/*" state={true}>
-            Projet
-          </StyledDrawPart>
+          <StyledDrawPart to="/myProjects">Mes Projets</StyledDrawPart>
           <StyledDrawPart to="/">Déconnexion</StyledDrawPart>
         </StyledDrawer>
       )}

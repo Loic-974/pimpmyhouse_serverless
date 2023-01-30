@@ -2,7 +2,7 @@ import React from "react";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { HashRouter } from "react-router-dom";
+
 import ReactDOM from "react-dom/client";
 
 const root = ReactDOM.createRoot(
@@ -11,9 +11,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <HashRouter>
-      <App />
-    </HashRouter>
+    <App />
   </React.StrictMode>
 );
 
