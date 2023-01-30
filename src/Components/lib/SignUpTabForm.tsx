@@ -18,8 +18,8 @@ import BalanceIcon from "@mui/icons-material/Balance";
 import CallIcon from "@mui/icons-material/Call";
 import httpCommon from "../../http.common";
 import styled from "styled-components";
-import { AsyncLoader } from "./AsyncLoader";
-import { TabPanel, TabPanelProps } from "./TabPanel";
+import { AsyncLoader } from "./GenericComponent/AsyncLoader";
+import { TabPanel, TabPanelProps } from "./GenericComponent/TabPanel";
 
 export interface IFormData {
   email: string;

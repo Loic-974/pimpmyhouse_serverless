@@ -14,8 +14,8 @@ import PageWrapper from "./lib/PageWrapper";
 import styled from "styled-components";
 import { IUtilisateur } from "../types/utilisateur";
 import httpCommon from "../http.common";
-import { AsyncLoader } from "./lib/AsyncLoader";
-import { apiErrorConvertor } from "../Lib/apiErrorConvertor";
+import { AsyncLoader } from "./lib/GenericComponent/AsyncLoader";
+import { apiErrorConvertor } from "../functionLib/apiErrorConvertor";
 
 export default function Login() {
   const navigate = useNavigate();
