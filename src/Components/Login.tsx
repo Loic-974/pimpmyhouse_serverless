@@ -112,7 +112,7 @@ const StyledLoginContainer = styled.div`
   align-items: center;
   justify-content: center;
   h1 {
-    color: #d1d5da;
+    color: #eaecee;
   }
 `;
 
@@ -127,7 +127,7 @@ const StyledForm = styled.form`
   align-items: center;
   justify: space-around;
   padding: 16px;
-  background-color: #1f1f20e8;
+  background-color: #121213f6;
   border-radius: 8px;
   width: 40%;
 `;

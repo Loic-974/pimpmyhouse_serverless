@@ -44,7 +44,7 @@ const StyledSignUpContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #1f1f20f6;
+  background-color: #121213f6;
   width: 60%;
   margin: auto;
   height: 50%;

@@ -43,13 +43,17 @@ export default function PageWrapper({
   );
 }
 
+// ----------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- Style ---------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
+
 const StyledPageWrapper = styled.div<{ $isConnected: boolean }>`
   width: 100vw;
   min-height: 100vh;
   box-sizing: border-box;
   padding: 24px;
   background-color: ${(props) =>
-    props.$isConnected ? "#cacdd6" : "#000000a0"};
+    props.$isConnected ? "#d8dae0" : "#000000a0"};
   opacity: 1;
 `;
 
@@ -101,7 +105,7 @@ const StyledDrawPart = styled(Link)`
   text-decoration: none;
   color: black;
   text-align: center;
-  font-weight: 500;
+  font-weight: 400;
   font-kerning: 1px;
   color: white;
   :last-child {

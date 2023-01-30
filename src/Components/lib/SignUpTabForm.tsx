@@ -19,6 +19,7 @@ import CallIcon from "@mui/icons-material/Call";
 import httpCommon from "../../http.common";
 import styled from "styled-components";
 import { AsyncLoader } from "./AsyncLoader";
+import { TabPanel, TabPanelProps } from "./TabPanel";
 
 export interface IFormData {
   email: string;
@@ -31,14 +32,14 @@ export interface IFormData {
   statutJuridique?: string;
 }
 
-export function SignUpTabForm(props: {
-  value: number;
-  index: number;
+interface ITabPanelForm extends TabPanelProps {
   ispresta: boolean;
-}) {
+}
+
+export function SignUpTabForm(props: ITabPanelForm) {
   const navigate = useNavigate();
 
-  const { value, index, ispresta, ...other } = props;
+  const { value, index, ispresta } = props;
   // ------- Default User -------
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -109,227 +110,229 @@ export function SignUpTabForm(props: {
 
   // ------------------------------------------- Template --------------------------------------- //
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {errorMessage && (
-        <StyledAlert severity="error">{errorMessage}</StyledAlert>
-      )}
-      <AsyncLoader isLoading={isLoading} label="Inscription en cours" />
-      {value === index && (
-        <Grid container justifyContent={"space-around"}>
-          <Grid
-            container
-            item
-            xs={12}
-            justifyContent={"center"}
-            alignItems={"center"}
-          >
-            <StyledGrid item md={4} xs={6}>
-              <StyledTextField
-                id="email"
-                variant="standard"
-                label="Adresse Email"
-                placeholder="Saisir votre Email"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                error={email ? !_checkEmail(email) : false}
-                helperText={!_checkEmail(email) ? "Email invalide" : ""}
-                onChange={(e) => setEmail(e.currentTarget.value)}
-              />
-            </StyledGrid>
-            <StyledGrid item md={4} xs={6}>
-              <StyledTextField
-                id="password"
-                type="password"
-                label="Mot de passe"
-                variant="standard"
-                placeholder="Saisir votre mot de passe"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <KeyIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                error={
-                  !!password.length &&
-                  !_checkPassword(formData.password, confirmPassword)
-                }
-                helperText={
-                  !!password.length &&
-                  !_checkPassword(formData.password, confirmPassword)
-                    ? "Mot de passe différent"
-                    : ""
-                }
-                onChange={(e) => setPassword(e.currentTarget.value)}
-              />
-            </StyledGrid>
-            <StyledGrid item md={4} xs={6}>
-              <StyledTextField
-                id="confirPassword"
-                type="password"
-                variant="standard"
-                label="Confirmation Mot de passe"
-                placeholder="Confirmer votre mot de passe"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <KeyIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                error={
-                  !!confirmPassword.length &&
-                  !_checkPassword(formData.password, confirmPassword)
-                }
-                helperText={
-                  !!confirmPassword.length &&
-                  !_checkPassword(formData.password, confirmPassword)
-                    ? "Mot de passe différent"
-                    : ""
-                }
-                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-              />
-            </StyledGrid>
-          </Grid>
-          <StyledPart>Qui êtes-vous?</StyledPart>
-          <Grid container item xs={12}>
-            <StyledGrid item md={4} xs={6}>
-              <FormControl variant="standard">
-                <StyledLabel htmlFor="name">Nom</StyledLabel>
-                <StyledInput
-                  id="name"
-                  placeholder="Saisir votre nom"
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <AccountCircle />
-                    </InputAdornment>
-                  }
-                  onChange={(e) => setNom(e.currentTarget.value)}
-                />
-              </FormControl>
-            </StyledGrid>
-            <StyledGrid item md={4} xs={6}>
-              <FormControl variant="standard">
-                <StyledLabel htmlFor="firstName">Prenom</StyledLabel>
-                <StyledInput
-                  id="firstName"
-                  placeholder="Saisir votre prenom"
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <AccountCircle />
-                    </InputAdornment>
-                  }
-                  onChange={(e) => setPrenom(e.currentTarget.value)}
-                />
-              </FormControl>
-            </StyledGrid>
-            <StyledGrid item md={4} xs={6}>
-              <StyledTextField
-                id="tel"
-                variant="standard"
-                label="Numéro Téléphone"
-                placeholder="Saisir votre numéro de téléphone"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CallIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                error={tel.length && tel.length !== 10 ? true : false}
-                helperText={
-                  tel.length && tel.length !== 10
-                    ? "Numéro incorrect (10 Chiffres nécessaire)"
-                    : ""
-                }
-                onChange={(e) => setTel(e.currentTarget.value)}
-              />
-            </StyledGrid>
-          </Grid>
-          {ispresta && (
-            <>
-              <StyledPart>Votre Société</StyledPart>
-              <Grid container item xs={12}>
-                <StyledGrid item md={4} xs={6}>
-                  <StyledTextField
-                    id="siren"
-                    placeholder="Saisir votre numero siren"
-                    label="Siren"
-                    variant="standard"
-                    error={siren.length < 9 && siren.length ? true : false}
-                    helperText={
-                      siren.length && siren.length < 9
-                        ? "Siren incorrect (9 Chiffres nécessaire)"
-                        : ""
-                    }
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <StoreIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                    onChange={(e) => setSiren(e.currentTarget.value)}
-                  />
-                </StyledGrid>
-                <StyledGrid item md={4} xs={6}>
-                  <FormControl variant="standard">
-                    <StyledLabel htmlFor="adress">Adresse Sociale</StyledLabel>
-                    <StyledInput
-                      id="adress"
-                      placeholder="Saisir votre adresse sociale"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <StoreIcon />
-                        </InputAdornment>
-                      }
-                      onChange={(e) => setAdresseSociale(e.currentTarget.value)}
-                    />
-                  </FormControl>
-                </StyledGrid>
-                <StyledGrid item md={4} xs={6}>
-                  <FormControl variant="standard">
-                    <StyledLabel htmlFor="statut">Statut juridique</StyledLabel>
-                    <StyledInput
-                      id="statut"
-                      placeholder="Saisir votre statut juridique"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <BalanceIcon />
-                        </InputAdornment>
-                      }
-                      onChange={(e) =>
-                        setStatutJuridique(e.currentTarget.value)
-                      }
-                    />
-                  </FormControl>
-                </StyledGrid>
-              </Grid>
-            </>
-          )}
-          <StyledBtnGrid item xs={12}>
-            <StyledButton
-              variant="contained"
-              disabled={!_checkFormData(formData, confirmPassword)}
-              onClick={handleSignUp}
+    <TabPanel props={{ ...props }}>
+      <>
+        {errorMessage && (
+          <StyledAlert severity="error">{errorMessage}</StyledAlert>
+        )}
+        <AsyncLoader isLoading={isLoading} label="Inscription en cours" />
+        {value === index && (
+          <Grid container justifyContent={"space-around"}>
+            <Grid
+              container
+              item
+              xs={12}
+              justifyContent={"center"}
+              alignItems={"center"}
             >
-              S'inscrire
-            </StyledButton>
-          </StyledBtnGrid>
-        </Grid>
-      )}
-    </div>
+              <StyledGrid item md={4} xs={6}>
+                <StyledTextField
+                  id="email"
+                  variant="standard"
+                  label="Adresse Email"
+                  placeholder="Saisir votre Email"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={email ? !_checkEmail(email) : false}
+                  helperText={!_checkEmail(email) ? "Email invalide" : ""}
+                  onChange={(e) => setEmail(e.currentTarget.value)}
+                />
+              </StyledGrid>
+              <StyledGrid item md={4} xs={6}>
+                <StyledTextField
+                  id="password"
+                  type="password"
+                  label="Mot de passe"
+                  variant="standard"
+                  placeholder="Saisir votre mot de passe"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <KeyIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={
+                    !!password.length &&
+                    !_checkPassword(formData.password, confirmPassword)
+                  }
+                  helperText={
+                    !!password.length &&
+                    !_checkPassword(formData.password, confirmPassword)
+                      ? "Mot de passe différent"
+                      : ""
+                  }
+                  onChange={(e) => setPassword(e.currentTarget.value)}
+                />
+              </StyledGrid>
+              <StyledGrid item md={4} xs={6}>
+                <StyledTextField
+                  id="confirPassword"
+                  type="password"
+                  variant="standard"
+                  label="Confirmation Mot de passe"
+                  placeholder="Confirmer votre mot de passe"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <KeyIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={
+                    !!confirmPassword.length &&
+                    !_checkPassword(formData.password, confirmPassword)
+                  }
+                  helperText={
+                    !!confirmPassword.length &&
+                    !_checkPassword(formData.password, confirmPassword)
+                      ? "Mot de passe différent"
+                      : ""
+                  }
+                  onChange={(e) => setConfirmPassword(e.currentTarget.value)}
+                />
+              </StyledGrid>
+            </Grid>
+            <StyledPart>Qui êtes-vous?</StyledPart>
+            <Grid container item xs={12}>
+              <StyledGrid item md={4} xs={6}>
+                <FormControl variant="standard">
+                  <StyledLabel htmlFor="name">Nom</StyledLabel>
+                  <StyledInput
+                    id="name"
+                    placeholder="Saisir votre nom"
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <AccountCircle />
+                      </InputAdornment>
+                    }
+                    onChange={(e) => setNom(e.currentTarget.value)}
+                  />
+                </FormControl>
+              </StyledGrid>
+              <StyledGrid item md={4} xs={6}>
+                <FormControl variant="standard">
+                  <StyledLabel htmlFor="firstName">Prenom</StyledLabel>
+                  <StyledInput
+                    id="firstName"
+                    placeholder="Saisir votre prenom"
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <AccountCircle />
+                      </InputAdornment>
+                    }
+                    onChange={(e) => setPrenom(e.currentTarget.value)}
+                  />
+                </FormControl>
+              </StyledGrid>
+              <StyledGrid item md={4} xs={6}>
+                <StyledTextField
+                  id="tel"
+                  variant="standard"
+                  label="Numéro Téléphone"
+                  placeholder="Saisir votre numéro de téléphone"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CallIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={tel.length && tel.length !== 10 ? true : false}
+                  helperText={
+                    tel.length && tel.length !== 10
+                      ? "Numéro incorrect (10 Chiffres nécessaire)"
+                      : ""
+                  }
+                  onChange={(e) => setTel(e.currentTarget.value)}
+                />
+              </StyledGrid>
+            </Grid>
+            {ispresta && (
+              <>
+                <StyledPart>Votre Société</StyledPart>
+                <Grid container item xs={12}>
+                  <StyledGrid item md={4} xs={6}>
+                    <StyledTextField
+                      id="siren"
+                      placeholder="Saisir votre numero siren"
+                      label="Siren"
+                      variant="standard"
+                      error={siren.length < 9 && siren.length ? true : false}
+                      helperText={
+                        siren.length && siren.length < 9
+                          ? "Siren incorrect (9 Chiffres nécessaire)"
+                          : ""
+                      }
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <StoreIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                      onChange={(e) => setSiren(e.currentTarget.value)}
+                    />
+                  </StyledGrid>
+                  <StyledGrid item md={4} xs={6}>
+                    <FormControl variant="standard">
+                      <StyledLabel htmlFor="adress">
+                        Adresse Sociale
+                      </StyledLabel>
+                      <StyledInput
+                        id="adress"
+                        placeholder="Saisir votre adresse sociale"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <StoreIcon />
+                          </InputAdornment>
+                        }
+                        onChange={(e) =>
+                          setAdresseSociale(e.currentTarget.value)
+                        }
+                      />
+                    </FormControl>
+                  </StyledGrid>
+                  <StyledGrid item md={4} xs={6}>
+                    <FormControl variant="standard">
+                      <StyledLabel htmlFor="statut">
+                        Statut juridique
+                      </StyledLabel>
+                      <StyledInput
+                        id="statut"
+                        placeholder="Saisir votre statut juridique"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <BalanceIcon />
+                          </InputAdornment>
+                        }
+                        onChange={(e) =>
+                          setStatutJuridique(e.currentTarget.value)
+                        }
+                      />
+                    </FormControl>
+                  </StyledGrid>
+                </Grid>
+              </>
+            )}
+            <StyledBtnGrid item xs={12}>
+              <StyledButton
+                variant="contained"
+                disabled={!_checkFormData(formData, confirmPassword)}
+                onClick={handleSignUp}
+              >
+                S'inscrire
+              </StyledButton>
+            </StyledBtnGrid>
+          </Grid>
+        )}
+      </>
+    </TabPanel>
   );
 }
 
@@ -406,7 +409,7 @@ const StyledInput = styled(Input)`
     color: white;
   }
   input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px #1f1f20 inset;
+    -webkit-box-shadow: 0 0 0px 1000px #121213 inset;
     transition: background-color 5000s ease-in-out 0s;
     -webkit-text-fill-color: white;
   }
@@ -425,7 +428,7 @@ const StyledTextField = styled(TextField)`
   }
 
   input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px #1f1f20 inset;
+    -webkit-box-shadow: 0 0 0px 1000px #121213 inset;
     transition: background-color 5000s ease-in-out 0s;
     -webkit-text-fill-color: white;
   }
