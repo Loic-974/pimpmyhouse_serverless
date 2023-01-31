@@ -1,32 +1,35 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const multer = require("multer");
 const app = express();
+const mkdirp = require("mkdirp");
+//const path = __dirname + "/app/views/";
+//app.use(express.static(path));
 
-const path = __dirname + "/app/views/";
-app.use(express.static(path));
+// ------------------------- Storage Image Fake Server -------------------------------- //
+const imageUploadPath = __dirname + "/userImgStorage";
 
-var corsOptions = {
-  origin: "http://localhost:8081",
-};
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dest = imageUploadPath + "/" + req.body.userId;
+    mkdirp.sync(dest);
+    cb(null, dest);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+var upload = multer({ storage: storage });
+
+// ------------------------- CORS OPTIONS -------------------------------- //
+
+// var corsOptions = {
+//   origin: "http://localhost:8081",
+// };
 
 var allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
-
-// const db = require("./app/models");
-// ----------- DB connection ---------------- //
-// db.mongoose
-//   .connect(db.url, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log("Connected to the database!");
-//   })
-//   .catch((err) => {
-//     console.log("Cannot connect to the database!", err);
-//     process.exit();
-//   });
 
 app.use(
   cors({
@@ -44,25 +47,16 @@ app.use(
     },
   })
 );
-// app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
+// // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
-  // res.sendFile(path + "index.html");
+app.post("/sendImage", upload.any(), (req, res) => {
+  res.status(200);
 });
-
-app.post("/sendImage", (req, res) => {
-  res.json("Bien reçu");
-});
-// -------- Includes all utilisateurs route
-//require("./app/routes/utilisateurs.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;

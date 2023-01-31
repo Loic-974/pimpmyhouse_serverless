@@ -1,9 +1,10 @@
 export interface IBaseProject {
+  userId: string;
   libelleProjet: string;
   dateCreation: Date;
   dateDebut: Date;
   budgetMoyen: number;
-  details: string;
+  details: string[];
   imgUrlProjet: string;
   codeDepartement: string;
   villeProjet: string;
