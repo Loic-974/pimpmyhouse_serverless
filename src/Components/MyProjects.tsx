@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { Dispatch, SetStateAction, useContext } from "react";
 
 import { authContext } from "./lib/AuthProvider";
 import PageWrapper from "./lib/PageWrapper";
@@ -41,9 +41,17 @@ export const MyProjects = () => {
                 Filtre 3
               </Grid>
               <Grid item md={3} xs={6}>
-                <ButtonModal btnLabel="Créer un projet">
-                  <NewProjectForm user={user} />
-                </ButtonModal>
+                <ButtonModal
+                  btnLabel="Créer un projet"
+                  render={(setDisplayModal) => (
+                    <NewProjectForm
+                      user={user}
+                      setDisplayModal={
+                        setDisplayModal as Dispatch<SetStateAction<boolean>>
+                      }
+                    />
+                  )}
+                />
               </Grid>
             </Grid>
           </AccordionDetails>

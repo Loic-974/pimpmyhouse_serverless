@@ -4,6 +4,9 @@ const cors = require("cors");
 const multer = require("multer");
 const app = express();
 const mkdirp = require("mkdirp");
+const fs = require("fs");
+const pathFs = require("path");
+// render from build dir
 //const path = __dirname + "/app/views/";
 //app.use(express.static(path));
 
@@ -21,7 +24,18 @@ var storage = multer.diskStorage({
   },
 });
 
-var upload = multer({ storage: storage });
+var upload = multer({
+  storage: storage,
+  fileFilter: (req, file, callback) => {
+    const dest = imageUploadPath + "/" + req.body.userId;
+    if (fs.existsSync(pathFs.join(dest, file.originalname))) {
+      req.fileValidationError = "Image déjà existante";
+      return callback(new Error("Image déjà existante"), false);
+    } else {
+      callback(null, true);
+    }
+  },
+});
 
 // ------------------------- CORS OPTIONS -------------------------------- //
 
@@ -55,6 +69,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/sendImage", upload.any(), (req, res) => {
+  if (req.fileValidationError) {
+    // return res.sendFile();
+    return res.end();
+    // or even res.render(); whatever response you want here.
+  }
   res.status(200);
 });
 

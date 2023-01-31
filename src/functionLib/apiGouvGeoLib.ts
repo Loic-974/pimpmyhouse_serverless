@@ -39,14 +39,15 @@ export async function getDepartementByCode(code: string) {
   return data;
 }
 
-export async function getCitiesByDepsCode(depsCode: string) {
+export async function getCitiesByDepsCode(depsCode: string, cityName: string) {
   const depsCall = await axios.get(
-    depsCode
-      ? `https://geo.api.gouv.fr/departements/${depsCode}/communes?limit=15`
-      : `https://geo.api.gouv.fr/communes?limit=15`
+    !depsCode
+      ? `https://geo.api.gouv.fr/communes?limit=15`
+      : cityName
+      ? `https://geo.api.gouv.fr/communes?nom=${cityName}&codeDepartement=${depsCode}&limit=15`
+      : `https://geo.api.gouv.fr/departements/${depsCode}/communes?limit=15`
   );
   const data: ICity[] = depsCall.data;
-
   return data;
 }
 

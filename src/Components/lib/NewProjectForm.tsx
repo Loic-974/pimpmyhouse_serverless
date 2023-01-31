@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { IUtilisateur } from "../../types/utilisateur";
 import EuroSymbolIcon from "@mui/icons-material/EuroSymbol";
 import {
@@ -26,6 +26,7 @@ import {
   strDateToLocale,
 } from "../../functionLib/dateFnLib/strDateToLocale";
 import httpCommon, { expressAxios } from "../../http.common";
+import { AsyncLoader } from "./GenericComponent/AsyncLoader";
 
 interface IFormProject {
   userId: string;
@@ -39,7 +40,16 @@ interface IFormProject {
   imgUrlProjet: string;
 }
 
-export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
+export const NewProjectForm = ({
+  user,
+  setDisplayModal,
+}: {
+  user: IUtilisateur | null;
+  setDisplayModal: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ----------------- FORM STATE -------------
   const [libelleProjet, setLibelleProjet] = useState("");
   const [villeProjet, setVilleProjet] = useState({ label: "", value: "" });
   const [codeDepartement, setCodeDepartment] = useState({
@@ -89,6 +99,7 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const attempt = await httpCommon.post("/insertProject", formData);
       if (attempt?.data) {
@@ -98,14 +109,24 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
         imgFormData.append("userId", imgUrlProjet.userId);
         //@ts-ignore
         imgFormData.append("imgFile", imgUrlProjet.file);
-        await expressAxios({
+
+        expressAxios({
           method: "POST",
           url: "/sendImage",
           data: imgFormData,
           headers: { "Content-Type": "multipart/form-data" },
-        });
+        })
+          .then((response) => {
+            setIsLoading(false);
+            setDisplayModal(false);
+          })
+          .catch((err) => {
+            setIsLoading(false);
+            setDisplayModal(false);
+          });
       }
     } catch (e) {
+      setIsLoading(false);
       console.log(e);
     }
   }
@@ -120,7 +141,10 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
       if (!codeDepartement.value) {
         callback([{ label: "", value: "" }]);
       } else {
-        const depsCall = await getCitiesByDepsCode(codeDepartement.value);
+        const depsCall = await getCitiesByDepsCode(
+          codeDepartement.value,
+          inputValue
+        );
         const options = depsCall?.map((item) => ({
           label: item.nom,
           value: item.nom,
@@ -132,7 +156,7 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
   };
 
   // Select City async component
-  const AsyncSelectCities = () => {
+  const AsyncSelectCities = useMemo(() => {
     return (
       <AsyncSelect
         id="deps"
@@ -140,15 +164,14 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
         cacheOptions
         defaultOptions
         value={villeProjet}
-        loadOptions={(inputValue, callback) =>
-          getCities(codeDepartement.value, callback)
-        }
+        loadOptions={(inputValue, callback) => getCities(inputValue, callback)}
         onChange={(event: SingleValue<{ label: string; value: string }>) =>
           setVilleProjet(event as { label: string; value: string })
         }
       />
     );
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeDepartement.value, villeProjet]);
 
   // Allow to add a new component row
   function addNewItem() {
@@ -176,6 +199,7 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
 
   return (
     <StyledGridContainer container>
+      <AsyncLoader isLoading={isLoading} label="Création en cours" />
       <StyledGridUniq item xs={12}>
         <StyledFullWithFormControl variant="standard">
           <InputLabel htmlFor="name">Libelle Projet</InputLabel>
@@ -203,7 +227,7 @@ export const NewProjectForm = ({ user }: { user: IUtilisateur | null }) => {
 
         <Grid item xs={6}>
           <InputLabel htmlFor="deps">Ville</InputLabel>
-          <AsyncSelectCities />
+          {AsyncSelectCities}
         </Grid>
       </StyledGridMargin>
       <StyledGridMargin container item xs={12} spacing={1}>

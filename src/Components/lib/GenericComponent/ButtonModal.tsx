@@ -1,16 +1,27 @@
 import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
-import React, { ReactNode, useState } from "react";
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 import styled from "styled-components";
 
 export const ButtonModal = ({
-  children,
+  render,
+
   btnLabel,
 }: {
-  children: ReactNode;
+  render: (setterModal?: Dispatch<SetStateAction<boolean>>) => ReactNode;
+
   btnLabel: string;
 }) => {
   const [isDisplay, setIsDisplay] = useState(false);
 
+  const children = useMemo(() => {
+    return render(setIsDisplay);
+  }, [render, setIsDisplay]);
   return (
     <>
       <Button onClick={() => setIsDisplay(true)}>{btnLabel}</Button>
