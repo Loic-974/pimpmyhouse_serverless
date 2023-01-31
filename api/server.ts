@@ -8,10 +8,11 @@ const fs = require("fs");
 const pathFs = require("path");
 // render from build dir
 //const path = __dirname + "/app/views/";
-//app.use(express.static(path));
 
 // ------------------------- Storage Image Fake Server -------------------------------- //
 const imageUploadPath = __dirname + "/userImgStorage";
+
+app.use("/images", express.static(imageUploadPath));
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -67,6 +68,18 @@ app.use(bodyParser.json());
 
 // // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post("/getImage", (req, res) => {
+  const userId = req.body.userId;
+  const imgName = req.body.imgName;
+  const filePath = imageUploadPath + "/" + userId + "/" + imgName;
+
+  const img = fs.readFileSync(filePath);
+
+  res.send(img);
+  //res.end(img); // Send the file data to the browser.
+  // res.type(blob.type);
+});
 
 app.post("/sendImage", upload.any(), (req, res) => {
   if (req.fileValidationError) {

@@ -1,4 +1,5 @@
 export interface IBaseProject {
+  _id?: string;
   userId: string;
   libelleProjet: string;
   dateCreation: Date;
