@@ -10,44 +10,60 @@ import {
   CardActions,
   Collapse,
 } from "@mui/material";
-
-import React from "react";
+import styled from "styled-components";
+import React, { useContext, useMemo } from "react";
 import { IProject } from "../../types/projet";
 import { dateToStrDateFull } from "../../functionLib/dateFnLib/dateToStrDateLib";
+import { authContext } from "./AuthProvider";
 
 export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
+  const { user } = useContext(authContext);
+
+  const isUserProject = useMemo(() => {
+    return projectData.userId === user?._id;
+  }, []);
   return (
-    <Card>
-      <CardHeader
+    <StyledCard>
+      <StyledHeader
         title={projectData.libelleProjet}
         subheader={
-          <div>
-            <p>Création : {dateToStrDateFull(projectData.dateCreation)}</p>
+          <StyledSubHeaderGroup>
             <p>
-              Localisation : {projectData.villeProjet} (
-              {projectData.codeDepartement})
+              Création :{" "}
+              <span>{dateToStrDateFull(projectData.dateCreation)}</span>
             </p>
-          </div>
+            <p>
+              Localisation :{" "}
+              <span>
+                {projectData.villeProjet}({projectData.codeDepartement})
+              </span>
+            </p>
+            <p>
+              Budget Moyen: <span>{projectData.budgetMoyen}€</span>
+            </p>
+          </StyledSubHeaderGroup>
         }
       />
       <CardMedia
         component="img"
-        height="250"
+        height="200px"
         image={`http://localhost:8080/images/${projectData.userId}/${projectData.imgUrlProjet}`}
       />
-      <CardContent>
-        <p>Détails du projet</p>
+      <StyledCardContent>
+        <Typography variant="subtitle1" color="text.primary" gutterBottom>
+          Détails du projet :
+        </Typography>
         {!!projectData.details.length &&
           projectData.details.map((detail, index) => (
             <Typography
               key={"detail" + index}
               variant="body2"
-              color="text.secondary"
+              color="text.primary"
             >
               - {detail}
             </Typography>
           ))}
-      </CardContent>
+      </StyledCardContent>
       <CardActions disableSpacing>
         {/* <IconButton aria-label="add to favorites">
           <FavoriteIcon />
@@ -95,6 +111,57 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
           </Typography>
         </CardContent>
       </Collapse> */}
-    </Card>
+    </StyledCard>
   );
 };
+
+// -----------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- Style ---------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------
+
+const StyledCard = styled(Card)`
+  width: 30%;
+  margin: 1%;
+`;
+
+const StyledHeader = styled(CardHeader)`
+  &.MuiCardHeader-root {
+    padding: 0;
+  }
+  /* .MuiCardHeader-content {
+    padding: 8px;
+  } */
+  .MuiCardHeader-title {
+    padding: 6px 12px;
+    color: white;
+    background-color: #2b2b2b;
+    font-size: 1.3rem;
+  }
+  .MuiCardHeader-subheader {
+    padding: 3px 12px;
+  }
+`;
+
+const StyledSubHeaderGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  p {
+    margin-block-start: 0.3rem;
+    margin-block-end: 0.3rem;
+    font-weight: 500;
+    span {
+      font-weight: bold;
+    }
+  }
+`;
+
+const StyledCardContent = styled(CardContent)`
+  &.MuiCardContent-root {
+    padding: 12px;
+    min-height: 20%;
+    max-height: 30%;
+  }
+  .MuiTypography-root .MuiTypography-subtitle1 {
+    font-size: bold;
+  }
+`;
