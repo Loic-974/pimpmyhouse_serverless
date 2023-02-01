@@ -1,20 +1,22 @@
-import { ExpandMore } from "@mui/icons-material";
 import {
   Card,
   CardHeader,
-  Avatar,
   IconButton,
   CardMedia,
   CardContent,
   Typography,
   CardActions,
-  Collapse,
+  Chip,
 } from "@mui/material";
 import styled from "styled-components";
 import React, { useContext, useMemo } from "react";
 import { IProject } from "../../types/projet";
 import { dateToStrDateFull } from "../../functionLib/dateFnLib/dateToStrDateLib";
 import { authContext } from "./AuthProvider";
+import DesignServicesIcon from "@mui/icons-material/DesignServices";
+import ShieldMoonIcon from "@mui/icons-material/ShieldMoon";
+import { ButtonModal } from "./GenericComponent/ButtonModal";
+import { NewProjectForm } from "./NewProjectForm";
 
 export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
   const { user } = useContext(authContext);
@@ -22,6 +24,7 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
   const isUserProject = useMemo(() => {
     return projectData.userId === user?._id;
   }, []);
+
   return (
     <StyledCard>
       <StyledHeader
@@ -32,12 +35,20 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
               Création :{" "}
               <span>{dateToStrDateFull(projectData.dateCreation)}</span>
             </p>
-            <p>
-              Localisation :{" "}
-              <span>
-                {projectData.villeProjet}({projectData.codeDepartement})
-              </span>
-            </p>
+
+            <StyledSubDivContainer>
+              <p>
+                Localisation :{" "}
+                <span>
+                  {projectData.villeProjet}({projectData.codeDepartement})
+                </span>
+              </p>
+              <Chip
+                label={projectData.isActive ? "En cours" : "Annulé"}
+                variant="outlined"
+                color={projectData.isActive ? "success" : "error"}
+              />
+            </StyledSubDivContainer>
             <p>
               Budget Moyen: <span>{projectData.budgetMoyen}€</span>
             </p>
@@ -64,14 +75,33 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
             </Typography>
           ))}
       </StyledCardContent>
-      <CardActions disableSpacing>
-        {/* <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
+      <StyledCardAction>
+        <div>
+          <ButtonModal
+            btnLabel="Créer un projet"
+            render={(setDisplayModal) => (
+              <NewProjectForm
+                user={user}
+                setDisplayModal={setDisplayModal as any}
+                projectData={projectData}
+              />
+            )}
+            buttonRender={(onClickFn) => (
+              <IconButton
+                aria-label="add to favorites"
+                color="primary"
+                onClick={() => onClickFn(true)}
+              >
+                <DesignServicesIcon />
+              </IconButton>
+            )}
+          />
+
+          <IconButton aria-label="share" color="error">
+            <ShieldMoonIcon />
+          </IconButton>
+        </div>
+        {/*<ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
@@ -79,38 +109,7 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
         >
           <ExpandMoreIcon />
         </ExpandMore> */}
-      </CardActions>
-      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Method:</Typography>
-          <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and
-            set aside for 10 minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet
-            over medium-high heat. Add chicken, shrimp and chorizo, and cook,
-            stirring occasionally until lightly browned, 6 to 8 minutes.
-            Transfer shrimp to a large plate and set aside, leaving chicken and
-            chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes,
-            onion, salt and pepper, and cook, stirring often until thickened and
-            fragrant, about 10 minutes. Add saffron broth and remaining 4 1/2
-            cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and
-            peppers, and cook without stirring, until most of the liquid is
-            absorbed, 15 to 18 minutes. Reduce heat to medium-low, add reserved
-            shrimp and mussels, tucking them down into the rice, and cook again
-            without stirring, until mussels have opened and rice is just tender,
-            5 to 7 minutes more. (Discard any mussels that don&apos;t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then
-            serve.
-          </Typography>
-        </CardContent>
-      </Collapse> */}
+      </StyledCardAction>
     </StyledCard>
   );
 };
@@ -120,8 +119,15 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
 // -----------------------------------------------------------------------------------------------------------------------------
 
 const StyledCard = styled(Card)`
-  width: 30%;
+  min-width: 30%;
   margin: 1%;
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
+  align-items: stretch;
+  overflow: visible;
+  box-sizing: border-box;
 `;
 
 const StyledHeader = styled(CardHeader)`
@@ -154,14 +160,32 @@ const StyledSubHeaderGroup = styled.div`
     }
   }
 `;
+const StyledSubDivContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
 
 const StyledCardContent = styled(CardContent)`
   &.MuiCardContent-root {
     padding: 12px;
-    min-height: 20%;
     max-height: 30%;
   }
   .MuiTypography-root .MuiTypography-subtitle1 {
     font-size: bold;
+  }
+`;
+
+const StyledCardAction = styled(CardActions)`
+  display: flex;
+
+  flex-direction: row-reverse;
+
+  &.MuiCardActions-root {
+    display: flex;
+    flex-grow: 1;
+    padding: 1px;
+  }
+  &.MuiCardContent-root:last-child {
+    padding-bottom: 0px;
   }
 `;

@@ -1,4 +1,4 @@
-import { Grid, Slider } from "@mui/material";
+import { Grid, InputLabel, Slider } from "@mui/material";
 import React, { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { ButtonModal } from "./GenericComponent/ButtonModal";
 import { NewProjectForm } from "./NewProjectForm";
@@ -35,7 +35,7 @@ export const ProjectFilterComponent = ({
   const departementOptions: any[] = useMemo(() => {
     const options = uniqBy(
       nonFilteredList.map((item) => ({
-        label: item.codeDepartement,
+        label: "Département " + item.codeDepartement,
         value: item.codeDepartement,
       })),
       "value"
@@ -110,15 +110,17 @@ export const ProjectFilterComponent = ({
   }
 
   return (
-    <Grid container>
-      <Grid item md={3} xs={6}>
+    <Grid container spacing={3} alignItems={"end"} justifyContent={"center"}>
+      <Grid item md={3} xs={6} container justifyContent={"center"}>
+        <InputLabel htmlFor="sliderBudget">Filtre par Budget</InputLabel>
         <Slider
+          id="sliderBudget"
           aria-label="Small steps"
           defaultValue={maxBudget + 100}
           step={100}
           min={minBudget}
           max={maxBudget + 100}
-          valueLabelDisplay="on"
+          valueLabelDisplay="auto"
           valueLabelFormat={(value) => value + "€"}
           onChange={(e: any) => {
             setFilter((prevState) => ({
@@ -128,8 +130,17 @@ export const ProjectFilterComponent = ({
           }}
         />
       </Grid>
-      <Grid item md={3} xs={6}>
+      <Grid
+        item
+        md={3}
+        xs={6}
+        container
+        direction={"column"}
+        justifyContent={"center"}
+      >
+        <InputLabel htmlFor="selectDeps">Filtre par Localisation</InputLabel>
         <Select
+          id="selectDeps"
           defaultValue={departementOptions[0]}
           name="colors"
           options={departementOptions}
@@ -143,12 +154,15 @@ export const ProjectFilterComponent = ({
           }}
         />
       </Grid>
-      <Grid item md={3} xs={6}>
+      <Grid item md={3} xs={6} container justifyContent={"center"}>
+        <InputLabel htmlFor="sliderDate">Filtre par Date</InputLabel>
         <Slider
-          valueLabelDisplay="on"
+          id="sliderDate"
+          valueLabelDisplay="auto"
           valueLabelFormat={(value) => timeStampToStrDate(value)}
           aria-label="Small steps"
           //marks={marksDateRange}
+          defaultValue={maxDateRange + 86400000}
           min={minDateRange - 86400000}
           max={maxDateRange + 86400000}
           onChange={(e: any) => {
@@ -159,7 +173,7 @@ export const ProjectFilterComponent = ({
           }}
         />
       </Grid>
-      <Grid item md={3} xs={6}>
+      <Grid item md={3} xs={6} container justifyContent={"center"}>
         <ButtonModal
           btnLabel="Créer un projet"
           render={(setDisplayModal) => (

@@ -117,9 +117,9 @@ export const MyProjects = () => {
       <div>
         <StyledTitle>Aperçu de vos projets</StyledTitle>
         <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
             Options Projets
-          </AccordionSummary>
+          </StyledAccordionSummary>
           <AccordionDetails>
             {/* <Grid container>
               <Grid item md={3} xs={6}>
@@ -187,4 +187,14 @@ const StyledListContainer = styled.div`
   flex-wrap: wrap;
   align-items: stretch;
   /* justify-content: center; */
+`;
+
+const StyledAccordionSummary = styled(AccordionSummary)`
+  &.MuiAccordionSummary-root {
+    background-color: #2b2b2b;
+    color: white;
+  }
+  svg {
+    color: white;
+  }
 `;

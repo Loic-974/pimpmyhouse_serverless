@@ -69,8 +69,9 @@ const StyledBackground = styled.div<{ $isConnected: boolean }>`
 
 const StyledMenuClosed = styled.div`
   width: 15px;
-  height: 100vh;
-  position: absolute;
+  min-height: 100vh;
+  height: 100%;
+  position: fixed;
   top: 0;
   left: 0;
   background-color: #ca6f06;

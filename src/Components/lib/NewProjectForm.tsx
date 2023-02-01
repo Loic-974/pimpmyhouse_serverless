@@ -18,7 +18,7 @@ import {
   getDepartementByName,
   getCitiesByDepsCode,
 } from "../../functionLib/apiGouvGeoLib";
-import { Dictionary, omit } from "lodash";
+import { Dictionary, omit, zipObject } from "lodash";
 import { SingleValue } from "react-select";
 import styled from "styled-components";
 import {
@@ -27,6 +27,8 @@ import {
 } from "../../functionLib/dateFnLib/strDateToLocale";
 import httpCommon, { expressAxios } from "../../http.common";
 import { AsyncLoader } from "./GenericComponent/AsyncLoader";
+import { IProject } from "../../types/projet";
+import { dateToInputDate } from "../../functionLib/dateFnLib/dateToStrDateLib";
 
 interface IFormProject {
   userId: string;
@@ -43,27 +45,43 @@ interface IFormProject {
 export const NewProjectForm = ({
   user,
   setDisplayModal,
+  projectData,
 }: {
   user: IUtilisateur | null;
   setDisplayModal: Dispatch<SetStateAction<boolean>>;
+  projectData?: IProject;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   // ----------------- FORM STATE -------------
-  const [libelleProjet, setLibelleProjet] = useState("");
-  const [villeProjet, setVilleProjet] = useState({ label: "", value: "" });
+  const [libelleProjet, setLibelleProjet] = useState(
+    projectData?.libelleProjet || ""
+  );
+  const [villeProjet, setVilleProjet] = useState({
+    label: projectData?.villeProjet || "",
+    value: projectData?.villeProjet || "",
+  });
   const [codeDepartement, setCodeDepartment] = useState({
-    label: "",
-    value: "",
+    label: projectData?.codeDepartement || "",
+    value: projectData?.codeDepartement || "",
   });
-  const [dateDebut, setDateDebut] = useState("");
-  const [budgetMoyen, setBudgetMoyen] = useState(0);
-  const [detailsProjet, setDetailsProjet] = useState<Dictionary<string>>({
-    detail0: "",
-  });
+  const [dateDebut, setDateDebut] = useState(
+    dateToInputDate(projectData?.dateDebut as Date) || ""
+  );
+  const [budgetMoyen, setBudgetMoyen] = useState(projectData?.budgetMoyen || 0);
+  const [detailsProjet, setDetailsProjet] = useState<Dictionary<string>>(
+    projectData
+      ? zipObject(
+          projectData.details.map((item, index) => "detail" + index),
+          projectData.details
+        )
+      : {
+          detail0: "",
+        }
+  );
   const [imgUrlProjet, setImgUrlProjet] = useState({
-    userId: "",
-    name: "",
+    userId: projectData?.userId || "",
+    name: projectData?.imgUrlProjet || "",
     file: null,
   });
 
@@ -101,29 +119,35 @@ export const NewProjectForm = ({
     e.preventDefault();
     setIsLoading(true);
     try {
-      const attempt = await httpCommon.post("/insertProject", formData);
-      if (attempt?.data) {
-        const imgFormData = new FormData();
-        // Id must be at the first place
-        //https://stackoverflow.com/questions/39589022/node-js-multer-and-req-body-empty
-        imgFormData.append("userId", imgUrlProjet.userId);
-        //@ts-ignore
-        imgFormData.append("imgFile", imgUrlProjet.file);
+      if (projectData) {
+        const { imgUrlProjet, ...other } = formData;
+        //  await httpCommon.post("/", other);
+      } else {
+        const attempt = await httpCommon.post("/insertProject", formData);
 
-        expressAxios({
-          method: "POST",
-          url: "/sendImage",
-          data: imgFormData,
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-          .then((response) => {
-            setIsLoading(false);
-            setDisplayModal(false);
+        if (attempt?.data) {
+          const imgFormData = new FormData();
+          // Id must be at the first place
+          //https://stackoverflow.com/questions/39589022/node-js-multer-and-req-body-empty
+          imgFormData.append("userId", imgUrlProjet.userId);
+          //@ts-ignore
+          imgFormData.append("imgFile", imgUrlProjet.file);
+
+          expressAxios({
+            method: "POST",
+            url: "/sendImage",
+            data: imgFormData,
+            headers: { "Content-Type": "multipart/form-data" },
           })
-          .catch((err) => {
-            setIsLoading(false);
-            setDisplayModal(false);
-          });
+            .then((response) => {
+              setIsLoading(false);
+              setDisplayModal(false);
+            })
+            .catch((err) => {
+              setIsLoading(false);
+              setDisplayModal(false);
+            });
+        }
       }
     } catch (e) {
       setIsLoading(false);
@@ -206,6 +230,7 @@ export const NewProjectForm = ({
           <Input
             fullWidth
             id="name"
+            defaultValue={libelleProjet}
             placeholder="Libellé Projet"
             onChange={(e) => setLibelleProjet(e.currentTarget.value)}
           />
@@ -217,6 +242,7 @@ export const NewProjectForm = ({
           <AsyncSelect
             id="deps"
             cacheOptions
+            defaultValue={codeDepartement}
             defaultOptions
             loadOptions={getDeps}
             onChange={(event) =>
@@ -236,6 +262,7 @@ export const NewProjectForm = ({
             id="debut"
             fullWidth
             type="date"
+            defaultValue={dateDebut}
             variant="standard"
             label="Date Souhaité"
             onChange={(e) => setDateDebut(e.currentTarget.value)}
@@ -253,6 +280,7 @@ export const NewProjectForm = ({
             <Input
               id="debut"
               placeholder="Budget Moyen"
+              defaultValue={budgetMoyen}
               onChange={(e) => setBudgetMoyen(parseInt(e.currentTarget.value))}
               endAdornment={
                 <InputAdornment position="end">
@@ -278,6 +306,7 @@ export const NewProjectForm = ({
                   id={key}
                   variant="standard"
                   label="Description Projet"
+                  defaultValue={detailsProjet[key]}
                   placeholder="Détails"
                   fullWidth
                   onChange={(e) =>
@@ -317,18 +346,20 @@ export const NewProjectForm = ({
           ))}
         </Grid>
       </StyledGridUniq>
-      <StyledGridUniq item xs={12}>
-        <StyledFullWithFormControl variant="standard">
-          <InputLabel htmlFor="debut">Photo du bien</InputLabel>
-          <Input
-            id={"img"}
-            placeholder="Détails"
-            type="file"
-            inputProps={{ accept: "image/png, image/jpeg" }}
-            onChange={getFileInfo}
-          />
-        </StyledFullWithFormControl>
-      </StyledGridUniq>
+      {!projectData && (
+        <StyledGridUniq item xs={12}>
+          <StyledFullWithFormControl variant="standard">
+            <InputLabel htmlFor="debut">Photo du bien</InputLabel>
+            <Input
+              id={"img"}
+              placeholder="Détails"
+              type="file"
+              inputProps={{ accept: "image/png, image/jpeg" }}
+              onChange={getFileInfo}
+            />
+          </StyledFullWithFormControl>
+        </StyledGridUniq>
+      )}
 
       <StyledGridUniq item xs={12}>
         <Button
@@ -336,7 +367,7 @@ export const NewProjectForm = ({
           onClick={handleProjectCreation}
           disabled={Object.values(formData).some((item) => !item)}
         >
-          Créer le Projet
+          {projectData ? "Mise à jour projet" : "Créer le Projet"}
         </Button>
       </StyledGridUniq>
     </StyledGridContainer>

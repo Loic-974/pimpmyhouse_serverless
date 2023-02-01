@@ -10,21 +10,28 @@ import styled from "styled-components";
 
 export const ButtonModal = ({
   render,
-
   btnLabel,
+  buttonRender,
 }: {
   render: (setterModal?: Dispatch<SetStateAction<boolean>>) => ReactNode;
-
   btnLabel: string;
+  buttonRender?: (onClickFn: Dispatch<SetStateAction<boolean>>) => ReactNode;
 }) => {
   const [isDisplay, setIsDisplay] = useState(false);
 
   const children = useMemo(() => {
     return render(setIsDisplay);
   }, [render, setIsDisplay]);
+
   return (
     <>
-      <Button onClick={() => setIsDisplay(true)}>{btnLabel}</Button>
+      {buttonRender ? (
+        buttonRender(() => setIsDisplay(true))
+      ) : (
+        <Button variant="contained" onClick={() => setIsDisplay(true)}>
+          {btnLabel}
+        </Button>
+      )}
       <StyledDialog
         open={isDisplay}
         onClose={() => setIsDisplay(false)}
