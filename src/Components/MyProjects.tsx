@@ -31,68 +31,68 @@ export const MyProjects = () => {
   const { user } = useContext(authContext);
 
   const [projectList, setProjectList] = useState<IProject[]>([
-    {
-      _id: "63d8e0272090080jfb11f8a5",
-      userId: "63d376010b704765a169f180",
-      libelleProjet: "Aménagement Sous-Sol",
-      dateCreation: new Date(),
-      dateDebut: new Date(),
-      budgetMoyen: 4000,
-      details: [
-        "Transformation d'un sous-sol en pièce à vivre/bureau",
-        "Style épuré moderne",
-      ],
-      imgUrlProjet: "amenagement-sous-sol-petit-budget-top-duo.jpg",
-      codeDepartement: "30",
-      villeProjet: "Les Angles",
-      isActive: true,
-      numDevis: [],
-    },
-    {
-      _id: "63d8e3fbbdf74d5879704e78",
-      userId: "63d376010b704765a169f180",
-      libelleProjet: "Aménagement Salon",
-      dateCreation: new Date(2023, 0, 10),
-      dateDebut: new Date(2023, 0, 10),
-      budgetMoyen: 2500,
-      details: ["Aménagement Salon / Espace / Ameublement"],
-      imgUrlProjet: "salon-sous-sol-avec-faux-plafond-et-spot.jpg",
-      codeDepartement: "30",
-      villeProjet: "Nîmes",
-      isActive: true,
-      numDevis: [],
-    },
-    {
-      _id: "63d8e027e20900801fb11f8a5",
-      userId: "63d376010b704765a169f180",
-      libelleProjet: "Aménagement Sous-Sol",
-      dateCreation: new Date(2023, 0, 3),
-      dateDebut: new Date(2023, 0, 3),
-      budgetMoyen: 4000,
-      details: [
-        "Transformation d'un sous-sol en pièce à vivre/bureau",
-        "Style épuré moderne",
-      ],
-      imgUrlProjet: "amenagement-sous-sol-petit-budget-top-duo.jpg",
-      codeDepartement: "70",
-      villeProjet: "Montesquieux",
-      isActive: true,
-      numDevis: [],
-    },
-    {
-      _id: "63d8e3fbbdf741f5879704e78",
-      userId: "63d376010b704765a169f180",
-      libelleProjet: "Aménagement Salon",
-      dateCreation: new Date(2022, 2, 13),
-      dateDebut: new Date(),
-      budgetMoyen: 2500,
-      details: ["Aménagement Salon / Espace / Ameublement"],
-      imgUrlProjet: "salon-sous-sol-avec-faux-plafond-et-spot.jpg",
-      codeDepartement: "60",
-      villeProjet: "Prades",
-      isActive: true,
-      numDevis: [],
-    },
+    // {
+    //   _id: "63d8e0272090080jfb11f8a5",
+    //   userId: "63d376010b704765a169f180",
+    //   libelleProjet: "Aménagement Sous-Sol",
+    //   dateCreation: new Date(),
+    //   dateDebut: new Date(),
+    //   budgetMoyen: 4000,
+    //   details: [
+    //     "Transformation d'un sous-sol en pièce à vivre/bureau",
+    //     "Style épuré moderne",
+    //   ],
+    //   imgUrlProjet: "amenagement-sous-sol-petit-budget-top-duo.jpg",
+    //   codeDepartement: "30",
+    //   villeProjet: "Les Angles",
+    //   isActive: true,
+    //   numDevis: [],
+    // },
+    // {
+    //   _id: "63d8e3fbbdf74d5879704e78",
+    //   userId: "63d376010b704765a169f180",
+    //   libelleProjet: "Aménagement Salon",
+    //   dateCreation: new Date(2023, 0, 10),
+    //   dateDebut: new Date(2023, 0, 10),
+    //   budgetMoyen: 2500,
+    //   details: ["Aménagement Salon / Espace / Ameublement"],
+    //   imgUrlProjet: "salon-sous-sol-avec-faux-plafond-et-spot.jpg",
+    //   codeDepartement: "30",
+    //   villeProjet: "Nîmes",
+    //   isActive: true,
+    //   numDevis: [],
+    // },
+    // {
+    //   _id: "63d8e027e20900801fb11f8a5",
+    //   userId: "63d376010b704765a169f180",
+    //   libelleProjet: "Aménagement Sous-Sol",
+    //   dateCreation: new Date(2023, 0, 3),
+    //   dateDebut: new Date(2023, 0, 3),
+    //   budgetMoyen: 4000,
+    //   details: [
+    //     "Transformation d'un sous-sol en pièce à vivre/bureau",
+    //     "Style épuré moderne",
+    //   ],
+    //   imgUrlProjet: "amenagement-sous-sol-petit-budget-top-duo.jpg",
+    //   codeDepartement: "70",
+    //   villeProjet: "Montesquieux",
+    //   isActive: true,
+    //   numDevis: [],
+    // },
+    // {
+    //   _id: "63d8e3fbbdf741f5879704e78",
+    //   userId: "63d376010b704765a169f180",
+    //   libelleProjet: "Aménagement Salon",
+    //   dateCreation: new Date(2022, 2, 13),
+    //   dateDebut: new Date(),
+    //   budgetMoyen: 2500,
+    //   details: ["Aménagement Salon / Espace / Ameublement"],
+    //   imgUrlProjet: "salon-sous-sol-avec-faux-plafond-et-spot.jpg",
+    //   codeDepartement: "60",
+    //   villeProjet: "Prades",
+    //   isActive: true,
+    //   numDevis: [],
+    // },
   ]);
 
   const [displayedProject, setDisplayedProject] = useState(projectList);
@@ -171,15 +171,16 @@ export const MyProjects = () => {
             </Grid> */}
             <ProjectFilterComponent
               user={user as IUtilisateur}
-              projectListOrigin={projectList}
+              projectListOrigin={[...projectList]}
               setDisplayedProject={setDisplayedProject}
             />
           </AccordionDetails>
         </Accordion>
         <StyledListContainer>
           {!!displayedProject.length &&
-            displayedProject.map((item) => (
+            displayedProject.map((item, index) => (
               <ProjectCard
+                key={"card" + index}
                 projectData={item}
                 handleAction={handleActionOnList}
               />

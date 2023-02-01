@@ -25,7 +25,6 @@ export const ProjectFilterComponent = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [nonFilteredList, setNonFilteredList] = useState(projectListOrigin);
   const [projectList, setProjectList] = useState(nonFilteredList);
-
   const [filter, setFilter] = useState({
     budget: 0,
     deps: "",
@@ -52,12 +51,12 @@ export const ProjectFilterComponent = ({
     () =>
       _buildSliderData(
         nonFilteredList,
-        (item) => dateToTimestamp(item.dateCreation),
+        (item) => dateToTimestamp(item?.dateCreation) || "",
         (item) => ({
-          value: dateToTimestamp(item.dateCreation),
-          label: dateToStrDate(item.dateCreation),
+          value: dateToTimestamp(item?.dateCreation) || "",
+          label: dateToStrDate(item?.dateCreation) || "",
         }),
-        (item) => dateToTimestamp(item.dateCreation)
+        (item) => dateToTimestamp(item?.dateCreation) || ""
       ),
     [nonFilteredList]
   );
@@ -66,15 +65,20 @@ export const ProjectFilterComponent = ({
     () =>
       _buildSliderData(
         nonFilteredList,
-        (item) => item.budgetMoyen,
+        (item) => item?.budgetMoyen || 0,
         (item) => ({
-          value: item.budgetMoyen,
-          label: item.budgetMoyen,
+          value: item?.budgetMoyen || 0,
+          label: item?.budgetMoyen || 0,
         }),
-        (item) => item.budgetMoyen
+        (item) => item?.budgetMoyen || 0
       ),
     [nonFilteredList]
   );
+
+  useEffect(() => {
+    setNonFilteredList(projectListOrigin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectListOrigin]);
 
   useEffect(() => {
     setDisplayedProject(projectList);
@@ -181,6 +185,9 @@ export const ProjectFilterComponent = ({
               user={user}
               setDisplayModal={
                 setDisplayModal as Dispatch<SetStateAction<boolean>>
+              }
+              handleOnCreate={(arg: IProject) =>
+                setDisplayedProject((prevState) => prevState.concat(arg))
               }
             />
           )}

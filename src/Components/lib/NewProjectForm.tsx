@@ -46,9 +46,11 @@ export const NewProjectForm = ({
   user,
   setDisplayModal,
   projectData,
+  handleOnCreate,
 }: {
   user: IUtilisateur | null;
   setDisplayModal: Dispatch<SetStateAction<boolean>>;
+  handleOnCreate: (arg: IProject) => void;
   projectData?: IProject;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -122,13 +124,18 @@ export const NewProjectForm = ({
       if (projectData) {
         const { imgUrlProjet, ...other } = formData;
         const updateData = { ...other, projectId: projectData._id };
-        await httpCommon.post("/updateProject", updateData);
+        const updatedDoc = await httpCommon.post("/updateProject", updateData);
+        if (updatedDoc?.data) {
+          handleOnCreate(updatedDoc?.data);
+        }
         setIsLoading(false);
         setDisplayModal(false);
       } else {
         const attempt = await httpCommon.post("/insertProject", formData);
 
         if (attempt?.data) {
+          console.log(attempt?.data);
+          handleOnCreate(attempt?.data);
           const imgFormData = new FormData();
           // Id must be at the first place
           //https://stackoverflow.com/questions/39589022/node-js-multer-and-req-body-empty
@@ -286,7 +293,7 @@ export const NewProjectForm = ({
             <Input
               id="debut"
               placeholder="Budget Moyen"
-              defaultValue={budgetMoyen}
+              defaultValue={budgetMoyen || 0}
               onChange={(e) => setBudgetMoyen(parseInt(e.currentTarget.value))}
               endAdornment={
                 <InputAdornment position="end">

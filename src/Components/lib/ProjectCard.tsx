@@ -19,6 +19,7 @@ import ShieldMoonIcon from "@mui/icons-material/ShieldMoon";
 import { ButtonModal } from "./GenericComponent/ButtonModal";
 import { NewProjectForm } from "./NewProjectForm";
 import httpCommon from "../../http.common";
+import { noop } from "lodash";
 
 export const ProjectCard = ({
   projectData,
@@ -90,7 +91,7 @@ export const ProjectCard = ({
         <Typography variant="subtitle1" color="text.primary" gutterBottom>
           Détails du projet :
         </Typography>
-        {!!projectData.details.length &&
+        {!!projectData.details?.length &&
           projectData.details.map((detail, index) => (
             <Typography
               key={"detail" + index}
@@ -104,12 +105,13 @@ export const ProjectCard = ({
       <StyledCardAction>
         <div>
           <ButtonModal
-            btnLabel="Créer un projet"
+            btnLabel="Modifier un projet"
             render={(setDisplayModal) => (
               <NewProjectForm
                 user={user}
                 setDisplayModal={setDisplayModal as any}
                 projectData={projectData}
+                handleOnCreate={handleAction}
               />
             )}
             buttonRender={(onClickFn) => (
