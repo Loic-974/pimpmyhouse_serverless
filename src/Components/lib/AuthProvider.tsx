@@ -1,9 +1,11 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import httpCommon from "../../http.common";
 import { useAsync } from "react-use";
-import { IUtilisateur } from "../../types/utilisateur";
+import { IPrestataire, IUtilisateur } from "../../types/utilisateur";
 
-export const authContext = createContext<{ user: IUtilisateur | null }>({
+export const authContext = createContext<{
+  user: IUtilisateur | IPrestataire | null;
+}>({
   user: null,
 });
 /**

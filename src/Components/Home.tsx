@@ -8,6 +8,7 @@ import { AsyncLoader } from "./lib/GenericComponent/AsyncLoader";
 import { ProjectCard } from "./lib/ProjectCard";
 import { noop } from "lodash";
 import { authContext } from "./lib/AuthProvider";
+import { useMemo } from "react";
 
 export const Home = () => {
   const { user } = useContext(authContext);

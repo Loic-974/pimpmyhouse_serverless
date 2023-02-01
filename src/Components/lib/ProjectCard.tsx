@@ -8,6 +8,7 @@ import {
   CardActions,
   Chip,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import styled from "styled-components";
 import React, { useContext, useMemo, useState } from "react";
@@ -31,6 +32,12 @@ export const ProjectCard = ({
   const { user } = useContext(authContext);
 
   const [updateStateLoading, setUpdateStateLoading] = useState(false);
+
+  const isUserPresta = useMemo(() => {
+    if (user) {
+      return "siren" in user;
+    }
+  }, [user]);
 
   const isUserProject = useMemo(() => {
     return projectData.userId === user?._id;
@@ -103,6 +110,11 @@ export const ProjectCard = ({
           ))}
       </StyledCardContent>
       <StyledCardAction>
+        {isUserPresta && !isUserProject && (
+          <div>
+            <Button variant="contained">Soumettre une offre</Button>
+          </div>
+        )}
         {isUserProject && (
           <div>
             <ButtonModal
