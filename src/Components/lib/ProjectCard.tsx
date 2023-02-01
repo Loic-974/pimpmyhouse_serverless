@@ -7,9 +7,10 @@ import {
   Typography,
   CardActions,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import styled from "styled-components";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { IProject } from "../../types/projet";
 import { dateToStrDateFull } from "../../functionLib/dateFnLib/dateToStrDateLib";
 import { authContext } from "./AuthProvider";
@@ -17,13 +18,34 @@ import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import ShieldMoonIcon from "@mui/icons-material/ShieldMoon";
 import { ButtonModal } from "./GenericComponent/ButtonModal";
 import { NewProjectForm } from "./NewProjectForm";
+import httpCommon from "../../http.common";
 
-export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
+export const ProjectCard = ({
+  projectData,
+  handleAction,
+}: {
+  projectData: IProject;
+  handleAction: (arg: IProject) => void;
+}) => {
   const { user } = useContext(authContext);
+
+  const [updateStateLoading, setUpdateStateLoading] = useState(false);
 
   const isUserProject = useMemo(() => {
     return projectData.userId === user?._id;
   }, []);
+
+  async function _changeProjectState() {
+    setUpdateStateLoading(true);
+    const formData = {
+      projectId: projectData._id,
+      isActive: !projectData.isActive,
+    };
+    await httpCommon.post("/updateProject", formData);
+    projectData.isActive = formData.isActive;
+    handleAction(projectData);
+    setUpdateStateLoading(false);
+  }
 
   return (
     <StyledCard>
@@ -43,11 +65,15 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
                   {projectData.villeProjet}({projectData.codeDepartement})
                 </span>
               </p>
-              <Chip
-                label={projectData.isActive ? "En cours" : "Annulé"}
-                variant="outlined"
-                color={projectData.isActive ? "success" : "error"}
-              />
+              {updateStateLoading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <Chip
+                  label={projectData.isActive ? "En cours" : "Annulé"}
+                  variant="outlined"
+                  color={projectData.isActive ? "success" : "error"}
+                />
+              )}
             </StyledSubDivContainer>
             <p>
               Budget Moyen: <span>{projectData.budgetMoyen}€</span>
@@ -96,10 +122,17 @@ export const ProjectCard = ({ projectData }: { projectData: IProject }) => {
               </IconButton>
             )}
           />
-
-          <IconButton aria-label="share" color="error">
-            <ShieldMoonIcon />
-          </IconButton>
+          {updateStateLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <IconButton
+              aria-label="share"
+              color={projectData.isActive ? "error" : "success"}
+              onClick={() => _changeProjectState()}
+            >
+              <ShieldMoonIcon />
+            </IconButton>
+          )}
         </div>
         {/*<ExpandMore
           expand={expanded}

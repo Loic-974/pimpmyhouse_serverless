@@ -121,7 +121,10 @@ export const NewProjectForm = ({
     try {
       if (projectData) {
         const { imgUrlProjet, ...other } = formData;
-        //  await httpCommon.post("/", other);
+        const updateData = { ...other, projectId: projectData._id };
+        await httpCommon.post("/updateProject", updateData);
+        setIsLoading(false);
+        setDisplayModal(false);
       } else {
         const attempt = await httpCommon.post("/insertProject", formData);
 
@@ -223,7 +226,10 @@ export const NewProjectForm = ({
 
   return (
     <StyledGridContainer container>
-      <AsyncLoader isLoading={isLoading} label="Création en cours" />
+      <AsyncLoader
+        isLoading={isLoading}
+        label={projectData ? "Modification en cours" : "Création en cours"}
+      />
       <StyledGridUniq item xs={12}>
         <StyledFullWithFormControl variant="standard">
           <InputLabel htmlFor="name">Libelle Projet</InputLabel>

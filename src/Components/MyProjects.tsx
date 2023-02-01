@@ -25,6 +25,7 @@ import { ProjectCard } from "./lib/ProjectCard";
 import { useEffect } from "react";
 import { ProjectFilterComponent } from "./lib/ProjectFilterComponent";
 import { IUtilisateur } from "../types/utilisateur";
+import { keyBy } from "lodash";
 
 export const MyProjects = () => {
   const { user } = useContext(authContext);
@@ -102,14 +103,24 @@ export const MyProjects = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // useAsync(async () => {
-  // setIsLoading(true)
-  //   const projectDate = await httpCommon.post("/getAllProjectByUserId", {
-  //     userId: user?._id,
-  //   });
-  //   setProjectList(projectDate.data||[])
-  //   setIsLoading(false)
-  // }, [user]);
+  useAsync(async () => {
+    setIsLoading(true);
+    const projectDate = await httpCommon.post("/getAllProjectByUserId", {
+      userId: user?._id,
+    });
+    setProjectList(projectDate.data || []);
+    setIsLoading(false);
+  }, []);
+
+  /**
+   * Avoid Refetch data
+   */
+  function handleActionOnList(updatedProject: IProject) {
+    const dictionary = keyBy(displayedProject, "_id");
+    const updateId = updatedProject._id;
+    dictionary[updateId as string] = updatedProject;
+    setDisplayedProject(Object.values(dictionary));
+  }
 
   return (
     <PageWrapper>
@@ -167,7 +178,12 @@ export const MyProjects = () => {
         </Accordion>
         <StyledListContainer>
           {!!displayedProject.length &&
-            displayedProject.map((item) => <ProjectCard projectData={item} />)}
+            displayedProject.map((item) => (
+              <ProjectCard
+                projectData={item}
+                handleAction={handleActionOnList}
+              />
+            ))}
         </StyledListContainer>
       </div>
     </PageWrapper>
