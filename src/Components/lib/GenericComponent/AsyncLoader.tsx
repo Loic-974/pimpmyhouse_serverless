@@ -22,7 +22,7 @@ export const AsyncLoader = ({
 };
 
 const StyledContainer = styled.div`
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   width: 100%;

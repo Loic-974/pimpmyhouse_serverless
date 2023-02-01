@@ -1,23 +1,11 @@
-import React, { Dispatch, SetStateAction, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { authContext } from "./lib/AuthProvider";
 import PageWrapper from "./lib/PageWrapper";
 import styled from "styled-components";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  FormControl,
-  Grid,
-  Input,
-  InputAdornment,
-  InputLabel,
-  Slider,
-} from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { ButtonModal } from "./lib/GenericComponent/ButtonModal";
 import httpCommon from "../http.common";
-import { NewProjectForm } from "./lib/NewProjectForm";
 import { useAsync } from "react-use";
 import { IProject } from "../types/projet";
 import { AsyncLoader } from "./lib/GenericComponent/AsyncLoader";

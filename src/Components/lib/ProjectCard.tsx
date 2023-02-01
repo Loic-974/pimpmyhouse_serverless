@@ -103,39 +103,41 @@ export const ProjectCard = ({
           ))}
       </StyledCardContent>
       <StyledCardAction>
-        <div>
-          <ButtonModal
-            btnLabel="Modifier un projet"
-            render={(setDisplayModal) => (
-              <NewProjectForm
-                user={user}
-                setDisplayModal={setDisplayModal as any}
-                projectData={projectData}
-                handleOnCreate={handleAction}
-              />
-            )}
-            buttonRender={(onClickFn) => (
+        {isUserProject && (
+          <div>
+            <ButtonModal
+              btnLabel="Modifier un projet"
+              render={(setDisplayModal) => (
+                <NewProjectForm
+                  user={user}
+                  setDisplayModal={setDisplayModal as any}
+                  projectData={projectData}
+                  handleOnCreate={handleAction}
+                />
+              )}
+              buttonRender={(onClickFn) => (
+                <IconButton
+                  aria-label="add to favorites"
+                  color="primary"
+                  onClick={() => onClickFn(true)}
+                >
+                  <DesignServicesIcon />
+                </IconButton>
+              )}
+            />
+            {updateStateLoading ? (
+              <CircularProgress size={20} />
+            ) : (
               <IconButton
-                aria-label="add to favorites"
-                color="primary"
-                onClick={() => onClickFn(true)}
+                aria-label="share"
+                color={projectData.isActive ? "error" : "success"}
+                onClick={() => _changeProjectState()}
               >
-                <DesignServicesIcon />
+                <ShieldMoonIcon />
               </IconButton>
             )}
-          />
-          {updateStateLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <IconButton
-              aria-label="share"
-              color={projectData.isActive ? "error" : "success"}
-              onClick={() => _changeProjectState()}
-            >
-              <ShieldMoonIcon />
-            </IconButton>
-          )}
-        </div>
+          </div>
+        )}
         {/*<ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
