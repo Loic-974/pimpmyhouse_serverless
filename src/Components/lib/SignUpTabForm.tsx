@@ -8,18 +8,19 @@ import {
   InputLabel,
   TextField,
 } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import React, { Dispatch, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountCircle } from "@mui/icons-material";
 import EmailIcon from "@mui/icons-material/Email";
 import KeyIcon from "@mui/icons-material/Key";
 import StoreIcon from "@mui/icons-material/Store";
-import BalanceIcon from "@mui/icons-material/Balance";
 import CallIcon from "@mui/icons-material/Call";
 import httpCommon from "../../http.common";
 import styled from "styled-components";
 import { AsyncLoader } from "./GenericComponent/AsyncLoader";
 import { TabPanel, TabPanelProps } from "./GenericComponent/TabPanel";
+import { apiErrorConvertor } from "../../functionLib/apiErrorConvertor";
+import { IUtilisateur } from "../../types/utilisateur";
 
 export interface IFormData {
   email: string;
@@ -29,17 +30,18 @@ export interface IFormData {
   tel: string;
   siren?: string;
   adresseSociale?: string;
-  statutJuridique?: string;
+  codePostal?: string;
 }
 
 interface ITabPanelForm extends TabPanelProps {
   ispresta: boolean;
+  setUser: Dispatch<React.SetStateAction<IUtilisateur | null>>;
 }
 
 export function SignUpTabForm(props: ITabPanelForm) {
   const navigate = useNavigate();
 
-  const { value, index, ispresta } = props;
+  const { value, index, ispresta, setUser } = props;
   // ------- Default User -------
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +53,8 @@ export function SignUpTabForm(props: ITabPanelForm) {
   // ------------ Presta User -------------
   const [siren, setSiren] = useState("");
   const [adresseSociale, setAdresseSociale] = useState("");
-  const [statutJuridique, setStatutJuridique] = useState("");
+
+  const [codePostal, setCodePostal] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -68,7 +71,7 @@ export function SignUpTabForm(props: ITabPanelForm) {
     const userPresta = {
       siren,
       adresseSociale,
-      statutJuridique,
+      codePostal,
     };
     return ispresta ? { ...userBasic, ...userPresta } : userBasic;
   }, [
@@ -79,22 +82,24 @@ export function SignUpTabForm(props: ITabPanelForm) {
     tel,
     siren,
     adresseSociale,
-    statutJuridique,
+    codePostal,
     ispresta,
   ]);
 
   async function handleSignUp() {
     setIsLoading(true);
     setErrorMessage("");
+
     try {
       const attempt = await httpCommon.post("/signUp", formData);
-
+      console.log(attempt);
       if (attempt?.data) {
         const data = attempt?.data;
 
         window.localStorage.setItem("email", data?.email);
         window.localStorage.setItem("token", data?.token);
         setIsLoading(false);
+        setUser(data);
         navigate("/", {
           state: data,
           replace: true,
@@ -104,7 +109,7 @@ export function SignUpTabForm(props: ITabPanelForm) {
     } catch (error: any) {
       setIsLoading(false);
       console.log(error);
-      setErrorMessage(error?.response?.data);
+      setErrorMessage(apiErrorConvertor(error));
     }
   }
 
@@ -300,20 +305,16 @@ export function SignUpTabForm(props: ITabPanelForm) {
                   </StyledGrid>
                   <StyledGrid item md={4} xs={6}>
                     <FormControl variant="standard">
-                      <StyledLabel htmlFor="statut">
-                        Statut juridique
-                      </StyledLabel>
+                      <StyledLabel htmlFor="statut">Code Postal</StyledLabel>
                       <StyledInput
                         id="statut"
-                        placeholder="Saisir votre statut juridique"
+                        placeholder="Saisir votre code postal"
                         startAdornment={
                           <InputAdornment position="start">
-                            <BalanceIcon />
+                            <StoreIcon />
                           </InputAdornment>
                         }
-                        onChange={(e) =>
-                          setStatutJuridique(e.currentTarget.value)
-                        }
+                        onChange={(e) => setCodePostal(e.currentTarget.value)}
                       />
                     </FormControl>
                   </StyledGrid>

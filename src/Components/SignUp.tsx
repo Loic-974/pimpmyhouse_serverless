@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { Dispatch, useState } from "react";
 
 import { Tab, Tabs, Typography } from "@mui/material";
 import PageWrapper from "./lib/PageWrapper";
 import { SignUpTabForm } from "./lib/SignUpTabForm";
 import styled from "styled-components";
+import { IUtilisateur } from "../types/utilisateur";
 
-export default function SignUp() {
+export default function SignUp({
+  setUser,
+}: {
+  setUser: Dispatch<React.SetStateAction<IUtilisateur | null>>;
+}) {
   const [displayedForm, setDisplayedForm] = useState(0);
 
   function a11yProps(index: number) {
@@ -29,8 +34,18 @@ export default function SignUp() {
         </StyledTabs>
 
         <div>
-          <SignUpTabForm value={displayedForm} index={0} ispresta={false} />
-          <SignUpTabForm value={displayedForm} index={1} ispresta={true} />
+          <SignUpTabForm
+            value={displayedForm}
+            index={0}
+            ispresta={false}
+            setUser={setUser}
+          />
+          <SignUpTabForm
+            value={displayedForm}
+            index={1}
+            ispresta={true}
+            setUser={setUser}
+          />
         </div>
       </StyledSignUpContainer>
     </PageWrapper>

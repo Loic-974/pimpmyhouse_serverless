@@ -6,7 +6,7 @@ import {
   InputAdornment,
   InputLabel,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { Dispatch, useState } from "react";
 import { Visibility } from "@mui/icons-material";
 import { AccountCircle } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,7 +17,11 @@ import httpCommon from "../http.common";
 import { AsyncLoader } from "./lib/GenericComponent/AsyncLoader";
 import { apiErrorConvertor } from "../functionLib/apiErrorConvertor";
 
-export default function Login() {
+export default function Login({
+  setUser,
+}: {
+  setUser: Dispatch<React.SetStateAction<IUtilisateur | null>>;
+}) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,6 +44,7 @@ export default function Login() {
         window.localStorage.setItem("email", data.email);
         window.localStorage.setItem("token", data.token || "");
         setIsLoading(false);
+        setUser(data);
         navigate("/", {
           state: data,
           replace: true,

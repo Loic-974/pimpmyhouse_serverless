@@ -34,6 +34,9 @@ export const useAuth = (setUser: any, setIsLoading: any) => {
       });
       setIsLoading(false);
       return userBdd.data.token === token ? userBdd?.data : null;
+    } else {
+      setIsLoading(false);
+      return null;
     }
   }, [email, token, setEmail, setToken]);
 

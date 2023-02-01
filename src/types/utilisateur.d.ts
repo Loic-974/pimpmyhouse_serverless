@@ -32,6 +32,6 @@ export interface IUtilisateur {
 export interface IPrestataire extends IUtilisateur {
   siren: string;
   adresseSociale: string;
-  statutJuridique: string;
+  codePostal: string;
   propositionDevis?: string[];
 }

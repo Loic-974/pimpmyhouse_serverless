@@ -13,6 +13,7 @@ import * as Realm from "realm-web";
 import { useEffect } from "react";
 import { Home } from "./Components/Home";
 import { MyProjects } from "./Components/MyProjects";
+import { IUtilisateur } from "./types/utilisateur";
 
 const APP_ID = "application-0-wgnei";
 export const APP = new Realm.App({ id: APP_ID });
@@ -20,13 +21,13 @@ export const APP = new Realm.App({ id: APP_ID });
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [apiConnection, setApiConnection] = useAsyncFn(apiConnectionFn);
-
+  console.log(apiConnection);
   useEffect(() => {
     setApiConnection();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<IUtilisateur | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const { AuthProvider } = useAuth(setUser, setIsLoading);
@@ -46,8 +47,8 @@ function App() {
 
           {!isLoading && !user && (
             <Routes>
-              <Route path="/" index element={<Login />} />
-              <Route path="/signUp" element={<SignUp />} />
+              <Route path="/" index element={<Login setUser={setUser} />} />
+              <Route path="/signUp" element={<SignUp setUser={setUser} />} />
             </Routes>
           )}
 
@@ -73,6 +74,7 @@ async function apiConnectionFn() {
     // Realm.Credentials.anonymous())
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const user: Realm.User = await APP.logIn(credential);
+    return user;
   } catch (error) {
     console.log(error);
   }
