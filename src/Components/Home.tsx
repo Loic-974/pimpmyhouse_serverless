@@ -62,16 +62,24 @@ export const Home = () => {
         <TabPanel props={{ value: displayedList, index: 0 }}>
           <StyledListContainer>
             {!!projectList.length &&
-              projectList.map((item) => (
-                <ProjectCard projectData={item} handleAction={noop} />
+              projectList.map((item, index) => (
+                <ProjectCard
+                  projectData={item}
+                  handleAction={noop}
+                  key={"noFilter" + index}
+                />
               ))}
           </StyledListContainer>
         </TabPanel>
         <TabPanel props={{ value: displayedList, index: 1 }}>
           {isUserPresta && !!filteredList?.length && (
             <StyledListContainer>
-              {filteredList.map((item) => (
-                <ProjectCard projectData={item} handleAction={noop} />
+              {filteredList.map((item, index) => (
+                <ProjectCard
+                  projectData={item}
+                  handleAction={noop}
+                  key={"filter" + index}
+                />
               ))}
             </StyledListContainer>
           )}
@@ -80,6 +88,10 @@ export const Home = () => {
     </PageWrapper>
   );
 };
+
+// ----------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- Helper ---------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
 
 function a11yProps(index: number) {
   return {

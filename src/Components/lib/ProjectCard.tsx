@@ -8,10 +8,15 @@ import {
   CardActions,
   Chip,
   CircularProgress,
-  Button,
 } from "@mui/material";
 import styled from "styled-components";
-import React, { useContext, useMemo, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { IProject } from "../../types/projet";
 import { dateToStrDateFull } from "../../functionLib/dateFnLib/dateToStrDateLib";
 import { authContext } from "./AuthProvider";
@@ -20,6 +25,8 @@ import ShieldMoonIcon from "@mui/icons-material/ShieldMoon";
 import { ButtonModal } from "./GenericComponent/ButtonModal";
 import { NewProjectForm } from "./NewProjectForm";
 import httpCommon from "../../http.common";
+import { DevisForm } from "../prestataires/DevisForm";
+import { IPrestataire } from "../../types/utilisateur";
 
 export const ProjectCard = ({
   projectData,
@@ -111,17 +118,26 @@ export const ProjectCard = ({
       <StyledCardAction>
         {isUserPresta && !isUserProject && (
           <div>
-            <Button variant="contained">Soumettre une offre</Button>
+            <ButtonModal
+              btnLabel="Soumettre devis"
+              render={(setDisplayModal: Dispatch<SetStateAction<boolean>>) => (
+                <DevisForm
+                  user={user as IPrestataire}
+                  setDisplayModal={setDisplayModal}
+                  projectData={projectData}
+                />
+              )}
+            />
           </div>
         )}
         {isUserProject && (
           <div>
             <ButtonModal
               btnLabel="Modifier un projet"
-              render={(setDisplayModal) => (
+              render={(setDisplayModal: Dispatch<SetStateAction<boolean>>) => (
                 <NewProjectForm
                   user={user}
-                  setDisplayModal={setDisplayModal as any}
+                  setDisplayModal={setDisplayModal}
                   projectData={projectData}
                   handleOnCreate={handleAction}
                 />

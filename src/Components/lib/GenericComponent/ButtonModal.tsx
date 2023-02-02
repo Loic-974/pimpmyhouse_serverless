@@ -13,7 +13,7 @@ export const ButtonModal = ({
   btnLabel,
   buttonRender,
 }: {
-  render: (setterModal?: Dispatch<SetStateAction<boolean>>) => ReactNode;
+  render: (setterModal: Dispatch<SetStateAction<boolean>>) => ReactNode;
   btnLabel: string;
   buttonRender?: (onClickFn: Dispatch<SetStateAction<boolean>>) => ReactNode;
 }) => {
@@ -47,7 +47,7 @@ export const ButtonModal = ({
 
 const StyledDialog = styled(Dialog)`
   .MuiDialog-paper {
-    max-width: 60%;
+    max-width: 80%;
     width: fit-content;
   }
   .MuiDialogContent-root {
