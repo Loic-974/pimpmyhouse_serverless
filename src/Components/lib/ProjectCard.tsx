@@ -20,7 +20,6 @@ import ShieldMoonIcon from "@mui/icons-material/ShieldMoon";
 import { ButtonModal } from "./GenericComponent/ButtonModal";
 import { NewProjectForm } from "./NewProjectForm";
 import httpCommon from "../../http.common";
-import { noop } from "lodash";
 
 export const ProjectCard = ({
   projectData,
@@ -41,7 +40,7 @@ export const ProjectCard = ({
 
   const isUserProject = useMemo(() => {
     return projectData.userId === user?._id;
-  }, []);
+  }, [user, projectData]);
 
   async function _changeProjectState() {
     setUpdateStateLoading(true);
@@ -168,12 +167,10 @@ export const ProjectCard = ({
 // -----------------------------------------------------------------------------------------------------------------------------
 
 const StyledCard = styled(Card)`
-  min-width: 30%;
+  width: 30%;
   margin: 1%;
   display: flex;
   flex-direction: column;
-
-  min-height: 0;
   align-items: stretch;
   overflow: visible;
   box-sizing: border-box;
@@ -199,6 +196,7 @@ const StyledHeader = styled(CardHeader)`
 
 const StyledSubHeaderGroup = styled.div`
   display: flex;
+  flex-grow: 1;
   flex-direction: column;
   p {
     margin-block-start: 0.3rem;
@@ -216,8 +214,10 @@ const StyledSubDivContainer = styled.div`
 
 const StyledCardContent = styled(CardContent)`
   &.MuiCardContent-root {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     padding: 12px;
-    max-height: 30%;
   }
   .MuiTypography-root .MuiTypography-subtitle1 {
     font-size: bold;
@@ -226,13 +226,15 @@ const StyledCardContent = styled(CardContent)`
 
 const StyledCardAction = styled(CardActions)`
   display: flex;
-
+  flex-grow: 1;
   flex-direction: row-reverse;
 
   &.MuiCardActions-root {
     display: flex;
     flex-grow: 1;
     padding: 1px;
+    align-items: end;
+    padding-bottom: 8px;
   }
   &.MuiCardContent-root:last-child {
     padding-bottom: 0px;

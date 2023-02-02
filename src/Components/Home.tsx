@@ -9,13 +9,22 @@ import { ProjectCard } from "./lib/ProjectCard";
 import { noop } from "lodash";
 import { authContext } from "./lib/AuthProvider";
 import { useMemo } from "react";
+import { TabPanel } from "./lib/GenericComponent/TabPanel";
+import { IProject } from "../types/projet";
+import { getCityByCodePostal } from "../functionLib/apiGouvGeoLib";
 
 export const Home = () => {
   const { user } = useContext(authContext);
 
-  //const [displayedList, setDisplayedList] = useState(0);
-  const [projectList, setProjectList] = useState([]);
+  const [displayedList, setDisplayedList] = useState(0);
+  const [projectList, setProjectList] = useState<IProject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isUserPresta = useMemo(() => {
+    if (user) {
+      return "siren" in user;
+    }
+  }, [user]);
 
   useAsync(async () => {
     setIsLoading(true);
@@ -24,43 +33,68 @@ export const Home = () => {
     setIsLoading(false);
   }, []);
 
-  // const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-  //   setDisplayedList(newValue);
-  // };
+  const filteredList = useAsync(async () => {
+    //@ts-ignore
+    const userDep = await getCodeDepsFromUserCp(user?.codePostal);
+    return projectList.filter((item) => item.codeDepartement === userDep);
+  }, [projectList]).value;
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setDisplayedList(newValue);
+  };
 
   return (
     <PageWrapper isUserConnected={true}>
       <AsyncLoader isLoading={isLoading} label={"Récupération Projets..."} />
       <StyledContainer>
-        <StyledTitle>Nos meilleurs prestataires, vos projets.</StyledTitle>
+        <StyledHeaderContainer>
+          <StyledTitle>Nos meilleurs prestataires, vos projets.</StyledTitle>
 
-        {/* <Tabs
-          value={displayedList}
-          onChange={handleChange}
-          aria-label="basic tabs example"
-        >
-          <Tab label="Tous les projets" {...a11yProps(0)} />
-          <Tab label="Aménagement intérieur" {...a11yProps(1)} />
-          <Tab label="Aménagement extérieur" {...a11yProps(2)} />
-          <Tab label="Jardin/Piscine" {...a11yProps(3)} />
-        </Tabs> */}
-        <StyledListContainer>
-          {!!projectList.length &&
-            projectList.map((item) => (
-              <ProjectCard projectData={item} handleAction={noop} />
-            ))}
-        </StyledListContainer>
+          <Tabs
+            value={displayedList}
+            onChange={handleChange}
+            aria-label="basic tabs example"
+          >
+            <Tab label="Tous les projets" {...a11yProps(0)} />
+            <Tab label="Projets proches de chez vous" {...a11yProps(1)} />
+          </Tabs>
+        </StyledHeaderContainer>
+        <TabPanel props={{ value: displayedList, index: 0 }}>
+          <StyledListContainer>
+            {!!projectList.length &&
+              projectList.map((item) => (
+                <ProjectCard projectData={item} handleAction={noop} />
+              ))}
+          </StyledListContainer>
+        </TabPanel>
+        <TabPanel props={{ value: displayedList, index: 1 }}>
+          {isUserPresta && !!filteredList?.length && (
+            <StyledListContainer>
+              {filteredList.map((item) => (
+                <ProjectCard projectData={item} handleAction={noop} />
+              ))}
+            </StyledListContainer>
+          )}
+        </TabPanel>
       </StyledContainer>
     </PageWrapper>
   );
 };
 
-// function a11yProps(index: number) {
-//   return {
-//     id: `simple-tab-${index}`,
-//     "aria-controls": `simple-tabpanel-${index}`,
-//   };
-// }
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
+async function getCodeDepsFromUserCp(codePostal: string) {
+  const cities = await getCityByCodePostal(codePostal);
+  if (!cities.length) {
+    return "";
+  }
+  return cities[0].codeDepartement;
+}
 
 // ----------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------- Style ---------------------------------------------------------------
@@ -80,9 +114,14 @@ const StyledTitle = styled.div`
 
 const StyledListContainer = styled.div`
   width: 100%;
-  margin: 3% 2%;
+  margin: 1%;
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
   /* justify-content: center; */
+`;
+
+const StyledHeaderContainer = styled.div`
+  width: 100%;
+  margin: 2%;
 `;
