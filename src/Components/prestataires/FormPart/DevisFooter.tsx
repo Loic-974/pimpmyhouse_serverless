@@ -6,6 +6,7 @@ import {
   strDateToLocale,
 } from "../../../functionLib/dateFnLib/strDateToLocale";
 import { sumBy } from "lodash";
+import { useEffect } from "react";
 
 export const DevisFooter = ({
   devisData,
@@ -16,17 +17,28 @@ export const DevisFooter = ({
 }) => {
   const totalTTC = useMemo(() => {
     return sumBy(devisData.devisRow, (item) => item.montantTTC);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devisData, devisData.devisRow]);
+  }, [devisData.devisRow]);
 
   const totalTVA = useMemo(() => {
     return sumBy(
       devisData.devisRow,
       (item) => item.montantHT * (item.tva / 100)
     );
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devisData, devisData.devisRow]);
-  console.log(totalTTC);
+  }, [devisData.devisRow]);
+
+  useEffect(() => {
+    setDevisData((prevState) => ({
+      ...prevState,
+      montantTotalTVA: totalTVA,
+      montantTotalTTC: totalTTC,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalTTC, totalTVA]);
+
   return (
     <Grid container item xs={12} justifyContent={"end"} spacing={2}>
       <Grid item xs={4}>
@@ -57,6 +69,7 @@ export const DevisFooter = ({
           label="Total TVA"
           disabled
           value={totalTVA}
+          defaultValue={totalTVA}
           placeholder="Total TVA"
           fullWidth
           InputProps={{
@@ -70,6 +83,7 @@ export const DevisFooter = ({
           label="Total TTC"
           disabled
           value={totalTTC}
+          defaultValue={totalTTC}
           placeholder="Total TTC"
           fullWidth
           InputProps={{

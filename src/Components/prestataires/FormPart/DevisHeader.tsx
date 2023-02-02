@@ -2,15 +2,17 @@ import React from "react";
 import { IPrestataire, IUtilisateur } from "../../../types/utilisateur";
 import { IProject } from "../../../types/projet";
 import styled from "styled-components";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import { dateToStrDate } from "../../../functionLib/dateFnLib/dateToStrDateLib";
 
 export const DevisHeader = ({
   user,
   projectUser,
   projectData,
+  isProjectUserFetching,
 }: {
   user: IPrestataire;
+  isProjectUserFetching: boolean;
   projectUser: IUtilisateur;
   projectData: IProject;
 }) => {
@@ -35,14 +37,21 @@ export const DevisHeader = ({
         <p>
           <span>Client</span>
         </p>
-        {/* <p>{projectUser.siren}</p> */}
-        <p>
-          {projectUser.nom} {projectUser.prenom}
-        </p>
-        {/* <p>{projectUser.adresseSociale}</p>
-          <p>{projectUser.codePostal}</p> */}
-        <p>{projectUser.tel}</p>
-        <p>{projectUser.email}</p>
+        {isProjectUserFetching || !projectUser ? (
+          <StyledLoader>
+            <CircularProgress size={30} />
+            <p>Récupération données...</p>
+          </StyledLoader>
+        ) : (
+          <>
+            <p>
+              {projectUser.nom} {projectUser.prenom}
+            </p>
+
+            <p>{projectUser.tel}</p>
+            <p>{projectUser.email}</p>
+          </>
+        )}
       </StyledHeaderPart>
       <StyledHeaderPart item xs={4}>
         <p>
@@ -85,4 +94,12 @@ const StyledHeaderPart = styled(Grid)`
   span {
     font-weight: bold;
   }
+`;
+
+const StyledLoader = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: start;
 `;
