@@ -92,13 +92,15 @@ export const MyProjects = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useAsync(async () => {
-    setIsLoading(true);
-    const projectDate = await httpCommon.post("/getAllProjectByUserId", {
-      userId: user?._id,
-    });
-    setProjectList(projectDate.data || []);
-    setIsLoading(false);
-  }, []);
+    if (user) {
+      setIsLoading(true);
+      const projectDate = await httpCommon.post("/getAllProjectByUserId", {
+        userId: user?._id,
+      });
+      setProjectList(projectDate.data || []);
+      setIsLoading(false);
+    }
+  }, [user]);
 
   /**
    * Avoid Refetch data

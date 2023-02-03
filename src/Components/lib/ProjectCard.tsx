@@ -130,7 +130,7 @@ export const ProjectCard = ({
           ))}
       </StyledCardContent>
       <StyledCardAction>
-        {isUserPresta && !isUserProject && (
+        {isUserPresta && !isUserProject && projectData.isActive && (
           <div>
             <ButtonModal
               btnLabel={prestaDevisId ? "Modifier Devis" : "Soumettre devis"}

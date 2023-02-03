@@ -2,8 +2,9 @@ import { Drawer } from "@mui/material";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 import background from "../../Rnovatio.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { authContext } from "./AuthProvider";
 
 export default function PageWrapper({
   children,
@@ -12,7 +13,18 @@ export default function PageWrapper({
   children: ReactNode;
   isUserConnected?: boolean;
 }) {
+  const navigate = useNavigate();
+
   const [displayMenu, setDisplayMenu] = useState(false);
+
+  function logout() {
+    window.localStorage.removeItem("email");
+    window.localStorage.removeItem("token");
+    navigate("/", {
+      replace: true,
+      preventScrollReset: true,
+    });
+  }
 
   return (
     <StyledPageWrapper $isConnected={isUserConnected}>
@@ -33,7 +45,7 @@ export default function PageWrapper({
             Accueil
           </StyledDrawPart>
           <StyledDrawPart to="/myProjects">Mes Projets</StyledDrawPart>
-          <StyledDrawPart to="/">Déconnexion</StyledDrawPart>
+          <StyledLogout onClick={logout}>Déconnexion</StyledLogout>
         </StyledDrawer>
       )}
       {children}
@@ -107,14 +119,22 @@ const StyledDrawPart = styled(Link)`
   font-weight: 400;
   font-kerning: 1px;
   color: white;
-  :last-child {
-    border-bottom: 1px solid white;
-    background-color: #971605;
-    color: white;
-    :hover {
-      background-color: #c54736;
-    }
+
+  :hover {
+    background-color: #70b1ca;
   }
+`;
+
+const StyledLogout = styled.div`
+  padding: 16px 6px;
+  border-top: 1px solid white;
+  text-decoration: none;
+  color: black;
+  text-align: center;
+  font-weight: 400;
+  font-kerning: 1px;
+  color: white;
+  cursor: pointer;
   :hover {
     background-color: #70b1ca;
   }
