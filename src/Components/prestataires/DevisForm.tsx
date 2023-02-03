@@ -132,22 +132,37 @@ export const DevisForm = ({
 
   async function handleSubmitDevis() {
     setIsLoading(true);
-    try {
-      const data = await httpCommon.post<IUtilisateur>(
-        "/insertDevis",
-        devisData
-      );
-      const clonedData = cloneDeep(projectData);
-      clonedData.numDevis = [
-        ...(clonedData?.numDevis || []),
-        data?.data?._id as string,
-      ];
-      // Add refresh list
-      handleOnCreate(clonedData);
-      setIsLoading(false);
-      setDisplayModal(false);
-    } catch (error) {
-      setIsLoading(false);
+    if (prestaDevisId) {
+      try {
+        const data = await httpCommon.post<IUtilisateur>(
+          "/updateDevis",
+          devisData
+        );
+        if (data.data) {
+          setIsLoading(false);
+          setDisplayModal(false);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        const data = await httpCommon.post<IUtilisateur>(
+          "/insertDevis",
+          devisData
+        );
+        const clonedData = cloneDeep(projectData);
+        clonedData.numDevis = [
+          ...(clonedData?.numDevis || []),
+          data?.data?._id as string,
+        ];
+        // Add refresh list
+        handleOnCreate(clonedData);
+        setIsLoading(false);
+        setDisplayModal(false);
+      } catch (error) {
+        setIsLoading(false);
+      }
     }
   }
 
