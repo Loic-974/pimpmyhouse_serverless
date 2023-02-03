@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { IPrestataire, IUtilisateur } from "../../types/utilisateur";
 import { IProject } from "../../types/projet";
 import styled from "styled-components";
-import { Button, Grid } from "@mui/material";
+import { Button, CircularProgress, Grid } from "@mui/material";
 import { DevisHeader } from "./FormPart/DevisHeader";
 import { DevisBody, IDevisLigne } from "./FormPart/DevisBody";
 import { DevisFooter } from "./FormPart/DevisFooter";
@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { useAsync } from "react-use";
 import httpCommon from "../../http.common";
 import { AsyncLoader } from "../lib/GenericComponent/AsyncLoader";
-import { cloneDeep } from "lodash";
+import { Dictionary, cloneDeep } from "lodash";
 
 export interface IDevis {
   devisRow: IDevisLigne[];
@@ -41,11 +41,13 @@ export const DevisForm = ({
   setDisplayModal,
   projectData,
   handleOnCreate,
+  prestaDevisId,
 }: {
   user: IPrestataire;
   setDisplayModal: Dispatch<SetStateAction<boolean>>;
   projectData: IProject;
   handleOnCreate: (project: IProject) => void;
+  prestaDevisId?: string | undefined;
 }) => {
   const [devisData, setDevisData] = useState<IDevis>({
     devisRow: [],
@@ -73,19 +75,36 @@ export const DevisForm = ({
 
   const [projectUser, setProjectUser] = useState<IUtilisateur>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(false);
 
+  useAsync(async () => {
+    if (prestaDevisId) {
+      setIsLoadingExisting(true);
+      const existingDevisData = await httpCommon.post("/findDevisById", {
+        devisId: prestaDevisId,
+      });
+      if (existingDevisData.data) {
+        setDevisData(existingDevisData.data);
+      }
+    }
+    setIsLoadingExisting(false);
+  }, [prestaDevisId]);
+
+  // --------------------------------- PROJECT USER -------------------------- //
   const asyncProjectUser = useAsync(async () => {
-    const userBdd = await httpCommon.post<IUtilisateur>("/getUserById", {
-      userId: projectData.userId,
-    });
-    return userBdd?.data;
-  }, [projectData]);
+    if (!prestaDevisId) {
+      const userBdd = await httpCommon.post<IUtilisateur>("/getUserById", {
+        userId: projectData.userId,
+      });
+      return userBdd?.data;
+    }
+  }, [projectData, prestaDevisId]);
 
   useEffect(() => {
-    if (asyncProjectUser?.value) {
+    if (asyncProjectUser?.value && !prestaDevisId) {
       setProjectUser(asyncProjectUser?.value);
     }
-  }, [asyncProjectUser.value]);
+  }, [asyncProjectUser.value, prestaDevisId]);
 
   useEffect(() => {
     if (projectUser) {
@@ -101,6 +120,15 @@ export const DevisForm = ({
       }));
     }
   }, [projectUser]);
+
+  // --------------------------------- METHODS -------------------------- //
+
+  function handleOnChange(devisRow: Dictionary<IDevisLigne>) {
+    setDevisData((prevState) => ({
+      ...prevState,
+      devisRow: Object.values(devisRow),
+    }));
+  }
 
   async function handleSubmitDevis() {
     setIsLoading(true);
@@ -125,35 +153,55 @@ export const DevisForm = ({
 
   return (
     <Grid container direction="row">
-      <AsyncLoader isLoading={isLoading} label={"Création du devis"} />
+      <AsyncLoader
+        isLoading={isLoading}
+        label={prestaDevisId ? "Modification en cours" : "Création du devis"}
+      />
       <StyledSpanTitle>Devis</StyledSpanTitle>
       <StyledSeparator item xs={12} />
-      <DevisHeader
-        user={user}
-        projectData={projectData}
-        isProjectUserFetching={asyncProjectUser.loading}
-        projectUser={projectUser as IUtilisateur}
-      />
-      <StyledSeparator item xs={12} />
+      {isLoadingExisting ? (
+        <StyledLoader>
+          <CircularProgress size={80} />
+          <p>Récupération Devis...</p>
+        </StyledLoader>
+      ) : (
+        <>
+          <DevisHeader
+            user={user}
+            projectData={projectData}
+            isProjectUserFetching={asyncProjectUser.loading}
+            projectUser={
+              prestaDevisId
+                ? (devisData.projectUser as any)
+                : (projectUser as IUtilisateur)
+            }
+          />
+          <StyledSeparator item xs={12} />
 
-      <DevisBody setDevisData={setDevisData} />
+          <DevisBody
+            setDevisData={setDevisData}
+            handleOnChange={handleOnChange}
+            existingDevisRow={prestaDevisId ? devisData.devisRow : null}
+          />
 
-      <StyledSeparator item xs={12} />
+          <StyledSeparator item xs={12} />
 
-      <DevisFooter devisData={devisData} setDevisData={setDevisData} />
+          <DevisFooter devisData={devisData} setDevisData={setDevisData} />
 
-      <StyledSeparator item xs={12} />
-      <Grid
-        item
-        container
-        xs={12}
-        alignItems={"center"}
-        justifyContent={"center"}
-      >
-        <Button variant="contained" onClick={handleSubmitDevis}>
-          Soumettre Devis
-        </Button>
-      </Grid>
+          <StyledSeparator item xs={12} />
+          <Grid
+            item
+            container
+            xs={12}
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
+            <Button variant="contained" onClick={handleSubmitDevis}>
+              {prestaDevisId ? "Modifer le devis" : "Soumettre Devis"}
+            </Button>
+          </Grid>
+        </>
+      )}
     </Grid>
   );
 };
@@ -175,4 +223,24 @@ const StyledSeparator = styled(Grid)`
     padding: 0 64px;
   }
   background-color: grey;
+`;
+
+const StyledLoader = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: stretch;
+  justify-content: center;
+  margin-top: 20%;
+  margin-bottom: 20%;
+  padding-left: 128px;
+  padding-right: 128px;
+  p {
+    color: #1b1b1b;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  span {
+    margin: auto;
+  }
 `;

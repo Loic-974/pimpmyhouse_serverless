@@ -49,13 +49,13 @@ export const ProjectCard = ({
     }
   }, [user]);
 
-  const isPrestaSetDevis = useMemo(() => {
+  const prestaDevisId = useMemo(() => {
     if (user && "propositionDevis" in user) {
       const inter = intersection(
         projectData.numDevis,
         user.propositionDevis as string[]
       );
-      return !!inter.length;
+      return inter[0];
     }
   }, [user, projectData]);
 
@@ -130,21 +130,22 @@ export const ProjectCard = ({
           ))}
       </StyledCardContent>
       <StyledCardAction>
-        {isUserPresta && !isUserProject && !isPrestaSetDevis && (
+        {isUserPresta && !isUserProject && (
           <div>
             <ButtonModal
-              btnLabel="Soumettre devis"
+              btnLabel={prestaDevisId ? "Modifier Devis" : "Soumettre devis"}
               render={(setDisplayModal: Dispatch<SetStateAction<boolean>>) => (
                 <DevisForm
                   user={user as IPrestataire}
                   setDisplayModal={setDisplayModal}
                   projectData={projectData}
                   handleOnCreate={handleAction}
+                  prestaDevisId={prestaDevisId}
                 />
               )}
               buttonRender={(onClickFn) => (
                 <Chip
-                  label="Soumettre devis"
+                  label={prestaDevisId ? "Modifier Devis" : "Soumettre devis"}
                   color="primary"
                   onClick={() => onClickFn(true)}
                 />

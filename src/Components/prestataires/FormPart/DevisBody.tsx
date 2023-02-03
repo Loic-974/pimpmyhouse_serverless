@@ -5,7 +5,7 @@ import {
   TextField,
   styled,
 } from "@mui/material";
-import { Dictionary, omit } from "lodash";
+import { Dictionary, cloneDeep, omit, zipObject } from "lodash";
 import React, { Dispatch, useEffect, useState } from "react";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -20,36 +20,35 @@ export interface IDevisLigne {
 
 export const DevisBody = ({
   setDevisData,
+  handleOnChange,
+  existingDevisRow,
 }: {
   setDevisData: Dispatch<React.SetStateAction<IDevis>>;
+  handleOnChange: (arg: Dictionary<IDevisLigne>) => void;
+  existingDevisRow?: IDevisLigne[] | null;
 }) => {
-  const [devisRow, setDevisRow] = useState<Dictionary<IDevisLigne>>({
-    row0: {
-      description: "",
-      montantHT: 0,
-      tva: 0,
-      montantTTC: 0,
-    },
-  });
+  const { devisRow, setDevisRow } = useDevisRow(existingDevisRow);
 
-  useEffect(() => {
-    setDevisData((prevState) => ({
-      ...prevState,
-      devisRow: Object.values(devisRow),
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devisRow]);
-
-  function setMontantTTC(key: string, montantHt: number, tva: number) {
-    if (montantHt && tva) {
-      setDevisRow((prevState) => ({
-        ...prevState,
-        [key]: {
-          ...prevState[key],
-          montantTTC: Math.round(montantHt * (1 + tva / 100)),
-        },
-      }));
+  function _setRowDevis(
+    key: string,
+    property: "description" | "montantHT" | "tva" | "montantTTC",
+    value: any
+  ) {
+    const existingRow = cloneDeep(devisRow);
+    const updatedKey = existingRow[key];
+    // @ts-ignore
+    updatedKey[property] = value;
+    if (property === "montantHT" || property === "tva") {
+      updatedKey.montantTTC = Math.round(
+        updatedKey.montantHT * (1 + updatedKey.tva / 100)
+      );
     }
+    setDevisRow((prevState) => ({
+      ...prevState,
+      [key]: updatedKey,
+    }));
+
+    handleOnChange(existingRow);
   }
 
   function addNewItem() {
@@ -74,17 +73,12 @@ export const DevisBody = ({
               <TextField
                 variant="standard"
                 label="Service/Produit"
+                value={row.description}
                 defaultValue={row.description}
                 placeholder="Service/Produit"
                 fullWidth
                 onChange={(e) =>
-                  setDevisRow((prevState) => ({
-                    ...prevState,
-                    [key]: {
-                      ...prevState[key],
-                      description: e.target.value,
-                    },
-                  }))
+                  _setRowDevis(key, "description", e.target.value)
                 }
               />
             </Grid>
@@ -92,7 +86,8 @@ export const DevisBody = ({
               <TextField
                 variant="standard"
                 label="Montant HT"
-                // defaultValue={row.montantHT}
+                value={row.montantHT}
+                defaultValue={row.montantHT}
                 placeholder="Montant HT"
                 fullWidth
                 InputProps={{
@@ -100,16 +95,7 @@ export const DevisBody = ({
                     <InputAdornment position="end">€</InputAdornment>
                   ),
                 }}
-                onChange={(e) => {
-                  setDevisRow({
-                    ...devisRow,
-                    [key]: {
-                      ...devisRow[key],
-                      montantHT: parseInt(e.target.value),
-                    },
-                  });
-                  setMontantTTC(key, parseInt(e.target.value), row.tva);
-                }}
+                onChange={(e) => _setRowDevis(key, "montantHT", e.target.value)}
               />
             </Grid>
             <Grid item xs={1}>
@@ -117,22 +103,15 @@ export const DevisBody = ({
                 variant="standard"
                 label="TVA"
                 placeholder="TVA"
+                value={row.tva}
+                defaultValue={row.tva}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">%</InputAdornment>
                   ),
                 }}
                 fullWidth
-                onChange={(e) => {
-                  setDevisRow({
-                    ...devisRow,
-                    [key]: {
-                      ...row,
-                      tva: parseInt(e.target.value),
-                    },
-                  });
-                  setMontantTTC(key, row.montantHT, parseInt(e.target.value));
-                }}
+                onChange={(e) => _setRowDevis(key, "tva", e.target.value)}
               />
             </Grid>
             <Grid item xs={2}>
@@ -184,6 +163,30 @@ export const DevisBody = ({
   );
 };
 
+// ----------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------- Helper ---------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
+
+function useDevisRow(existingDevisRow: IDevisLigne[] | null | undefined) {
+  const [devisRow, setDevisRow] = useState<Dictionary<IDevisLigne>>({
+    row0: {
+      description: "",
+      montantHT: 0,
+      tva: 0,
+      montantTTC: 0,
+    },
+  });
+
+  useEffect(() => {
+    if (existingDevisRow) {
+      const arrayKey = existingDevisRow.map((item, index) => "row" + index);
+      const devisRowDict = zipObject(arrayKey, existingDevisRow);
+      setDevisRow(devisRowDict);
+    }
+  }, [existingDevisRow]);
+
+  return { devisRow, setDevisRow };
+}
 // ----------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------- Style ---------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------
