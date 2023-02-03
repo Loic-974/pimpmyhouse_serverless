@@ -62,8 +62,8 @@ export const DevisHeader = ({
         <p>Projet : {projectData.libelleProjet}</p>
         <p>Description :</p>
 
-        {projectData.details.map((item) => (
-          <p>- {item}</p>
+        {projectData.details.map((item, index) => (
+          <p key={"detail" + index}>- {item}</p>
         ))}
       </StyledHeaderPart>
     </StyledHeader>

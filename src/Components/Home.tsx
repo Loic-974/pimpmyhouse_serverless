@@ -6,7 +6,7 @@ import { useAsync } from "react-use";
 import httpCommon from "../http.common";
 import { AsyncLoader } from "./lib/GenericComponent/AsyncLoader";
 import { ProjectCard } from "./lib/ProjectCard";
-import { noop } from "lodash";
+import { keyBy, noop } from "lodash";
 import { authContext } from "./lib/AuthProvider";
 import { useMemo } from "react";
 import { TabPanel } from "./lib/GenericComponent/TabPanel";
@@ -43,6 +43,13 @@ export const Home = () => {
     setDisplayedList(newValue);
   };
 
+  function _handleOnCreate(project: IProject) {
+    const dictionary = keyBy(projectList, "_id");
+    const updateId = project._id;
+    dictionary[updateId as string] = project;
+    setProjectList(Object.values(dictionary));
+  }
+
   return (
     <PageWrapper isUserConnected={true}>
       <AsyncLoader isLoading={isLoading} label={"Récupération Projets..."} />
@@ -65,7 +72,7 @@ export const Home = () => {
               projectList.map((item, index) => (
                 <ProjectCard
                   projectData={item}
-                  handleAction={noop}
+                  handleAction={_handleOnCreate}
                   key={"noFilter" + index}
                 />
               ))}
@@ -77,7 +84,7 @@ export const Home = () => {
               {filteredList.map((item, index) => (
                 <ProjectCard
                   projectData={item}
-                  handleAction={noop}
+                  handleAction={_handleOnCreate}
                   key={"filter" + index}
                 />
               ))}

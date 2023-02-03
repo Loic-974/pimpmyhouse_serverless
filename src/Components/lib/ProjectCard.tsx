@@ -8,6 +8,7 @@ import {
   CardActions,
   Chip,
   CircularProgress,
+  Badge,
 } from "@mui/material";
 import styled from "styled-components";
 import React, {
@@ -27,6 +28,9 @@ import { NewProjectForm } from "./NewProjectForm";
 import httpCommon from "../../http.common";
 import { DevisForm } from "../prestataires/DevisForm";
 import { IPrestataire } from "../../types/utilisateur";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { intersection } from "lodash";
+import FindInPageIcon from "@mui/icons-material/FindInPage";
 
 export const ProjectCard = ({
   projectData,
@@ -44,6 +48,16 @@ export const ProjectCard = ({
       return "siren" in user;
     }
   }, [user]);
+
+  const isPrestaSetDevis = useMemo(() => {
+    if (user && "propositionDevis" in user) {
+      const inter = intersection(
+        projectData.numDevis,
+        user.propositionDevis as string[]
+      );
+      return !!inter.length;
+    }
+  }, [user, projectData]);
 
   const isUserProject = useMemo(() => {
     return projectData.userId === user?._id;
@@ -116,7 +130,7 @@ export const ProjectCard = ({
           ))}
       </StyledCardContent>
       <StyledCardAction>
-        {isUserPresta && !isUserProject && (
+        {isUserPresta && !isUserProject && !isPrestaSetDevis && (
           <div>
             <ButtonModal
               btnLabel="Soumettre devis"
@@ -125,6 +139,14 @@ export const ProjectCard = ({
                   user={user as IPrestataire}
                   setDisplayModal={setDisplayModal}
                   projectData={projectData}
+                  handleOnCreate={handleAction}
+                />
+              )}
+              buttonRender={(onClickFn) => (
+                <Chip
+                  label="Soumettre devis"
+                  color="primary"
+                  onClick={() => onClickFn(true)}
                 />
               )}
             />
@@ -165,14 +187,13 @@ export const ProjectCard = ({
             )}
           </div>
         )}
-        {/*<ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore> */}
+        <Badge badgeContent={projectData?.numDevis?.length} color="primary">
+          {isUserProject ? (
+            <FindInPageIcon color="action" />
+          ) : (
+            <DescriptionIcon color="action" />
+          )}
+        </Badge>
       </StyledCardAction>
     </StyledCard>
   );
@@ -244,7 +265,7 @@ const StyledCardAction = styled(CardActions)`
   display: flex;
   flex-grow: 1;
   flex-direction: row-reverse;
-
+  justify-content: space-around;
   &.MuiCardActions-root {
     display: flex;
     flex-grow: 1;

@@ -21,7 +21,6 @@ export const APP = new Realm.App({ id: APP_ID });
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [apiConnection, setApiConnection] = useAsyncFn(apiConnectionFn);
-  console.log(apiConnection);
   useEffect(() => {
     setApiConnection();
     // eslint-disable-next-line react-hooks/exhaustive-deps

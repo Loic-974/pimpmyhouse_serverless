@@ -134,7 +134,6 @@ export const NewProjectForm = ({
         const attempt = await httpCommon.post("/insertProject", formData);
 
         if (attempt?.data) {
-          console.log(attempt?.data);
           handleOnCreate(attempt?.data);
           const imgFormData = new FormData();
           // Id must be at the first place
@@ -150,6 +149,7 @@ export const NewProjectForm = ({
             headers: { "Content-Type": "multipart/form-data" },
           })
             .then((response) => {
+              console.log("okkkkkkk");
               setIsLoading(false);
               setDisplayModal(false);
             })
@@ -157,6 +157,8 @@ export const NewProjectForm = ({
               setIsLoading(false);
               setDisplayModal(false);
             });
+          setIsLoading(false);
+          setDisplayModal(false);
         }
       }
     } catch (e) {

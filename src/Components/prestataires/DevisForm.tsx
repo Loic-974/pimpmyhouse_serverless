@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useAsync } from "react-use";
 import httpCommon from "../../http.common";
 import { AsyncLoader } from "../lib/GenericComponent/AsyncLoader";
+import { cloneDeep } from "lodash";
 
 export interface IDevis {
   devisRow: IDevisLigne[];
@@ -39,10 +40,12 @@ export const DevisForm = ({
   user,
   setDisplayModal,
   projectData,
+  handleOnCreate,
 }: {
   user: IPrestataire;
   setDisplayModal: Dispatch<SetStateAction<boolean>>;
   projectData: IProject;
+  handleOnCreate: (project: IProject) => void;
 }) => {
   const [devisData, setDevisData] = useState<IDevis>({
     devisRow: [],
@@ -106,7 +109,13 @@ export const DevisForm = ({
         "/insertDevis",
         devisData
       );
+      const clonedData = cloneDeep(projectData);
+      clonedData.numDevis = [
+        ...(clonedData?.numDevis || []),
+        data?.data?._id as string,
+      ];
       // Add refresh list
+      handleOnCreate(clonedData);
       setIsLoading(false);
       setDisplayModal(false);
     } catch (error) {
