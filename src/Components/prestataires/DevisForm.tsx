@@ -13,6 +13,7 @@ import { AsyncLoader } from "../lib/GenericComponent/AsyncLoader";
 import { Dictionary, cloneDeep } from "lodash";
 
 export interface IDevis {
+  _id?: string;
   devisRow: IDevisLigne[];
   dateValidite: Date;
   montantTotalTTC: number;
@@ -42,43 +43,47 @@ export const DevisForm = ({
   projectData,
   handleOnCreate,
   prestaDevisId,
+  existingDevis,
 }: {
   user: IPrestataire;
   setDisplayModal: Dispatch<SetStateAction<boolean>>;
   projectData: IProject;
   handleOnCreate: (project: IProject) => void;
   prestaDevisId?: string | undefined;
+  existingDevis?: IDevis;
 }) => {
-  const [devisData, setDevisData] = useState<IDevis>({
-    devisRow: [],
-    dateValidite: new Date(),
-    montantTotalTTC: 0,
-    montantTotalTVA: 0,
-    projectId: projectData?._id as string,
-    prestataire: {
-      prestataireId: user._id as string,
-      nom: user.nom,
-      prenom: user.prenom,
-      adresseSociale: user.adresseSociale,
-      codePostal: user.codePostal,
-      tel: user.tel,
-      email: user.email,
-    },
-    projectUser: {
-      userProjectId: "",
-      nom: "",
-      prenom: "",
-      tel: "",
-      email: "",
-    },
-  });
+  const [devisData, setDevisData] = useState<IDevis>(
+    existingDevis || {
+      devisRow: [],
+      dateValidite: new Date(),
+      montantTotalTTC: 0,
+      montantTotalTVA: 0,
+      projectId: projectData?._id as string,
+      prestataire: {
+        prestataireId: user._id as string,
+        nom: user.nom,
+        prenom: user.prenom,
+        adresseSociale: user.adresseSociale,
+        codePostal: user.codePostal,
+        tel: user.tel,
+        email: user.email,
+      },
+      projectUser: {
+        userProjectId: "",
+        nom: "",
+        prenom: "",
+        tel: "",
+        email: "",
+      },
+    }
+  );
 
   const [projectUser, setProjectUser] = useState<IUtilisateur>();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExisting, setIsLoadingExisting] = useState(false);
 
   useAsync(async () => {
-    if (prestaDevisId) {
+    if (prestaDevisId && !existingDevis) {
       setIsLoadingExisting(true);
       const existingDevisData = await httpCommon.post("/findDevisById", {
         devisId: prestaDevisId,
@@ -92,19 +97,19 @@ export const DevisForm = ({
 
   // --------------------------------- PROJECT USER -------------------------- //
   const asyncProjectUser = useAsync(async () => {
-    if (!prestaDevisId) {
+    if (!prestaDevisId && !existingDevis) {
       const userBdd = await httpCommon.post<IUtilisateur>("/getUserById", {
         userId: projectData.userId,
       });
       return userBdd?.data;
     }
-  }, [projectData, prestaDevisId]);
+  }, [projectData, prestaDevisId, existingDevis]);
 
   useEffect(() => {
-    if (asyncProjectUser?.value && !prestaDevisId) {
+    if (asyncProjectUser?.value && !prestaDevisId && !existingDevis) {
       setProjectUser(asyncProjectUser?.value);
     }
-  }, [asyncProjectUser.value, prestaDevisId]);
+  }, [asyncProjectUser.value, prestaDevisId, existingDevis]);
 
   useEffect(() => {
     if (projectUser) {
@@ -196,7 +201,13 @@ export const DevisForm = ({
           <DevisBody
             setDevisData={setDevisData}
             handleOnChange={handleOnChange}
-            existingDevisRow={prestaDevisId ? devisData.devisRow : null}
+            existingDevisRow={
+              prestaDevisId
+                ? devisData.devisRow
+                : existingDevis
+                ? existingDevis.devisRow
+                : null
+            }
           />
 
           <StyledSeparator item xs={12} />

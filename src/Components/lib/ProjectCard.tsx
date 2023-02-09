@@ -31,6 +31,7 @@ import { IPrestataire } from "../../types/utilisateur";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { intersection } from "lodash";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
+import { DevisListViewer } from "./DevisListViewer";
 
 export const ProjectCard = ({
   projectData,
@@ -188,13 +189,30 @@ export const ProjectCard = ({
             )}
           </div>
         )}
-        <Badge badgeContent={projectData?.numDevis?.length} color="primary">
-          {isUserProject ? (
-            <FindInPageIcon color="action" />
-          ) : (
+        {isUserProject ? (
+          <ButtonModal
+            btnLabel="Liste des devis"
+            render={(setDisplayModal: Dispatch<SetStateAction<boolean>>) => (
+              <DevisListViewer
+                devisIdList={projectData?.numDevis}
+                projectData={projectData}
+              />
+            )}
+            buttonRender={(onClickFn) => (
+              <Badge
+                badgeContent={projectData?.numDevis?.length}
+                color="primary"
+                onClick={() => onClickFn(true)}
+              >
+                <FindInPageIcon color="action" />
+              </Badge>
+            )}
+          />
+        ) : (
+          <Badge badgeContent={projectData?.numDevis?.length} color="primary">
             <DescriptionIcon color="action" />
-          )}
-        </Badge>
+          </Badge>
+        )}
       </StyledCardAction>
     </StyledCard>
   );
